@@ -1,0 +1,30 @@
+# docker compose up -d   then open http://localhost:8000
+# Same as REQUIREMENTS.md section 8, no Ollama or Python install needed.
+services:
+  ollama:
+    image: ollama/ollama:0.33.2
+    ports: ["11434:11434"]
+    environment:
+      OLLAMA_ORIGINS: http://localhost:8000
+    volumes: [ollama:/root/.ollama]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      retries: 20
+
+  # One-shot: pulls models into the shared volume, then exits. Cached after first run.
+  pull:
+    image: ollama/ollama:0.33.2
+    depends_on:
+      ollama: { condition: service_healthy }
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["sh", "-c", "ollama pull llama3.2:3b && ollama pull nomic-embed-text"]
+
+  web:
+    image: nginx:1.27-alpine
+    ports: ["8000:80"]
+    volumes: [".:/usr/share/nginx/html:ro"]
+
+volumes:
+  ollama:
