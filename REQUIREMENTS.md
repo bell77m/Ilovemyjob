@@ -81,7 +81,7 @@ Rule: maximum dumb, still demo-proof. Every stupid choice must still work on sta
 | RAG corpus | `cringe.json`, ~40 hand-written human → LinkedIn pairs | "Knowledge base" is one JSON file the team wrote at 3 a.m. | Small enough to embed on every page load. |
 | Embeddings | Ollama `nomic-embed-text` | A second neural network just to find similar humblebrags. | Same Ollama, one more `pull`, offline. |
 | Vector DB | **A JavaScript array in RAM.** Cosine similarity in a 5-line `for` loop. | Vector database: Ctrl+F with math. | 40 vectors × 768 dims searches in under 1 ms. |
-| MCP server | `mcp_server.py`, one file, official `mcp` Python SDK (`FastMCP`), stdio | Python returns, now as a "microservice". | About 60 lines. No ports, no auth needed. |
+| MCP server | `mcp_server.py`, one file, official `mcp` Python SDK 2.x (`MCPServer`, was `FastMCP` in 1.x), stdio | Python returns, now as a "microservice". | About 60 lines. No ports, no auth needed. |
 | Shared config | `prompts.json`: system prompts + model names, read by `index.html` and `mcp_server.py` | Two apps share a config file like it's 1996. | One place to tune cringe; web and MCP give the same output. |
 | Deploy | Run from laptop at the table. Optional: `index.html` on a USB stick labeled "FLOPPY". | No cloud. | Cannot go down because of venue Wi-Fi. |
 | Tests | One `tests.html` with `console.assert` for Synergy Meter, "Agree?" enforcer and cosine top-k. One `test_mcp_server.py` with plain `assert` for the Python top-k. | No test framework. | Follows `.agents/rules/testing.md` spirit: smallest check that fails if logic breaks. |
@@ -157,7 +157,7 @@ Goal: AI agents get LinkedIn powers. Demo: Claude Code turns its own commit mess
 
 ### Server: `mcp_server.py`
 
-- Official Python SDK: `pip install mcp`, `from mcp.server.fastmcp import FastMCP`.
+- Official Python SDK: `pip install mcp` (2.x), `from mcp.server.mcpserver import MCPServer` (1.x called it `FastMCP`).
 - Transport: **stdio only**. No HTTP port, nothing exposed on the network.
 - Talks to the same Ollama (`localhost:11434`) with `urllib.request` from the standard library. No `requests`, no `httpx`.
 - Reads `prompts.json` and `cringe.json`. Does the same RAG as the browser: embeds the corpus once at startup and keeps the vectors in a list.

@@ -4,6 +4,7 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `mcp_server.py`: MCP server (mcp 2.x `MCPServer`, stdio) with `synergy_score` tool and Python twins of `lib.js` helpers; `test_mcp_server.py` (11 checks, `python test_mcp_server.py`).
 - 2026-10-10 — `cringe.json`: starter RAG corpus, 12 hand-written human → LinkedIn pairs (§4 rows first).
 - 2026-10-10 — `prompts.json` (shared models + prompts + buzzwords), `frontend/lib.js` (`buildPrompt`, `enforceAgree`, `splitNdjson`), `frontend/tests.js` + `tests.html` (11 checks, Node or browser).
 - 2026-10-10 — `frontend/index.html`: static LinkedIn Translator page skeleton in Netscape 96 theme (input, cringe slider, buttons, output, sources, Win95 error dialog, status bar). No functionality wired yet.
