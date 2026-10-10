@@ -4,6 +4,10 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `frontend/index.html`: all four ad links point to the same YouTube video (t=3) as the "Get a FREE homepage!" badge.
+- 2026-10-10 — `frontend/index.html`: "Get a FREE homepage!" badge links to the YouTube video at 3 seconds.
+- 2026-10-10 — `frontend/index.html`: clicking "Best viewed at 800 x 600" hides the page body and the cursor (`.vanished` class on `<html>`, one-way until reload).
+- 2026-10-10 — `frontend/index.html`: clicking "Made with Notepad" badge turns the page grayscale (filter on `<html>`, one-way until reload).
 - 2026-10-10 — `nginx.conf`: dotfiles return 404. Before, the public tunnel served `.git/`, `.claude/` and `.remember/` (whole repo is mounted). Checked locally and through the tunnel URL.
 - 2026-10-10 — `cringe.json`: grown to 40 hand-written pairs (commuting, pets, kids, weather, office tech, career setbacks); live retrieval picks on-topic examples. `preview.html` location bar shows `http://localhost:8000/preview.html`.
 - 2026-10-10 — Hackathon demo sharing: `compose.demo.yaml` (Ollama on NVIDIA GPU + Cloudflare quick tunnel), `nginx.conf` proxies only `/api/generate` and `/api/embed`, page uses same-origin Ollama when not on localhost. Checked through public tunnel: page, embed, generate (~2s warm on RTX 4050), `/api/pull` and `/api/tags` return 404.

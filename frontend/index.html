@@ -123,6 +123,8 @@ dialog::backdrop { background: none; }
 .ad.horror .ad-link:visited { color: #ff0; }
 
 .scare { position: fixed; inset: 0; z-index: 1000; width: 100%; height: 100%; object-fit: cover; }
+.vanished, .vanished * { cursor: none !important; }
+.vanished body { display: none; }
 </style>
 </head>
 <body>
@@ -196,9 +198,9 @@ dialog::backdrop { background: none; }
         <p class="small">You are visitor number 0001337</p>
         <p class="small">Last updated: 10/10/26 &middot; <a href="mailto:webmaster@example.com">E-mail the webmaster</a></p>
         <div class="badges">
-          <a href="#top"><span class="b88 b-best"><span>Best viewed at</span><span>800 x 600</span></span></a>
-          <a href="#top"><span class="b88 b-pad"><span>Made with</span><span>Notepad</span></span></a>
-          <a href="#top"><span class="b88 b-free"><span>Get a FREE</span><span>homepage!</span></span></a>
+          <a href="#top" id="best-viewed"><span class="b88 b-best"><span>Best viewed at</span><span>800 x 600</span></span></a>
+          <a href="#top" id="notepad"><span class="b88 b-pad"><span>Made with</span><span>Notepad</span></span></a>
+          <a href="https://youtu.be/eioYulMp_5k?si=HXhGqI4CviCrAcje&amp;t=3"><span class="b88 b-free"><span>Get a FREE</span><span>homepage!</span></span></a>
         </div>
       </footer>
     </div>
@@ -216,7 +218,7 @@ dialog::backdrop { background: none; }
   <img src="images/ghost.jpg" alt="A ghost in a white sheet and sunglasses standing in a dark parking garage">
   <div class="ad-body">
     <p>It has been waiting in the parking garage since 1996. Rated R for Really Scary. Coming to a theater near you... if you dare!</p>
-    <a class="ad-link" href="#">Click here for tickets!</a>
+    <a class="ad-link" href="https://youtu.be/eioYulMp_5k?si=HXhGqI4CviCrAcje&amp;t=3">Click here for tickets!</a>
   </div>
 </div>
 
@@ -225,7 +227,7 @@ dialog::backdrop { background: none; }
   <img src="images/lobster.jpg" alt="Two cooked red lobsters piled together">
   <div class="ad-body">
     <p>Feeling stuck in your career? Our lobsters have been there. Pinch your way to the top at our Networking Lunch. Bring business cards!</p>
-    <a class="ad-link" href="#">Click here to book a claw!</a>
+    <a class="ad-link" href="https://youtu.be/eioYulMp_5k?si=HXhGqI4CviCrAcje&amp;t=3">Click here to book a claw!</a>
   </div>
 </div>
 
@@ -234,7 +236,7 @@ dialog::backdrop { background: none; }
   <img src="images/ghost.jpg" alt="A ghost in a white sheet and sunglasses standing in a dark parking garage">
   <div class="ad-body">
     <p>Nobody leaves the parking garage. Nobody. Four tickets left for the midnight show. Bring a friend. Or don't.</p>
-    <a class="ad-link" href="#">Click here before it finds you!</a>
+    <a class="ad-link" href="https://youtu.be/eioYulMp_5k?si=HXhGqI4CviCrAcje&amp;t=3">Click here before it finds you!</a>
   </div>
 </div>
 
@@ -243,7 +245,7 @@ dialog::backdrop { background: none; }
   <img src="images/lobster.jpg" alt="Close-up of red lobster claws and legs">
   <div class="ad-body">
     <p>Your next promotion is in the claws. Network over seafood and leave with a new job offer. Lunch is on us. Mostly.</p>
-    <a class="ad-link" href="#">Click here to reserve a seat!</a>
+    <a class="ad-link" href="https://youtu.be/eioYulMp_5k?si=HXhGqI4CviCrAcje&amp;t=3">Click here to reserve a seat!</a>
   </div>
 </div>
 
@@ -499,6 +501,19 @@ setTimeout(() => {
   scare.hidden = false;
   setTimeout(() => scare.remove(), 1000);
 }, 5 * 60 * 1000);
+
+// "Made with Notepad" badge: grayscale the whole page. One-way until reload.
+// Filter goes on <html>, not <body>, so the fixed-position ads still float against the viewport.
+$('notepad').addEventListener('click', e => {
+  e.preventDefault();
+  document.documentElement.style.filter = 'grayscale(1)';
+});
+
+// "Best viewed at 800 x 600" badge: the page vanishes and the cursor with it. One-way until reload.
+$('best-viewed').addEventListener('click', e => {
+  e.preventDefault();
+  document.documentElement.classList.add('vanished');
+});
 </script>
 </body>
 </html>
