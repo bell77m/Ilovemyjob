@@ -1,0 +1,9 @@
+{
+  "ollama": "http://localhost:11434",
+  "model": "llama3.2:3b",
+  "embedModel": "nomic-embed-text",
+  "temperature": 0.9,
+  "system": "You are a LinkedIn thought leader. Rewrite the user's text as a LinkedIn post.\nRules:\n- Turn every bad event into a growth opportunity or lesson.\n- Humblebrag. Be \"humbled\", \"thrilled\", \"grateful\".\n- Use buzzwords: synergy, leverage, journey, disrupt, passionate.\n- Short one-sentence paragraphs.\n- Add 2-5 emoji and 2-4 hashtags.\n- End with \"Agree?\"\n- Scale absurdity to the cringe level (1 = mild, 10 = unhinged).\n- Output only the post. No preamble.",
+  "reverseSystem": "Translate this LinkedIn post into the blunt, honest sentence the author actually means. One or two sentences. No emoji.",
+  "buzzwords": ["synergy", "leverage", "journey", "humbled", "grateful", "disrupt", "passionate", "thought leader", "🚀"]
+}
