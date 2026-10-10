@@ -4,7 +4,9 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `nginx.conf`: dotfiles return 404. Before, the public tunnel served `.git/`, `.claude/` and `.remember/` (whole repo is mounted). Checked locally and through the tunnel URL.
 - 2026-10-10 — `cringe.json`: grown to 40 hand-written pairs (commuting, pets, kids, weather, office tech, career setbacks); live retrieval picks on-topic examples. `preview.html` location bar shows `http://localhost:8000/preview.html`.
+- 2026-10-10 — Hackathon demo sharing: `compose.demo.yaml` (Ollama on NVIDIA GPU + Cloudflare quick tunnel), `nginx.conf` proxies only `/api/generate` and `/api/embed`, page uses same-origin Ollama when not on localhost. Checked through public tunnel: page, embed, generate (~2s warm on RTX 4050), `/api/pull` and `/api/tags` return 404.
 - 2026-10-10 — Acceptance: MCP registered in Claude Code (local scope), headless `claude -p` lists `decrypt_recruiter`, `linkedinify`, `synergy_score` and `linkedinify` returns a post ending "Agree?". Browser with `nomic-embed-text` removed: post still streams, "Sources: vibes only"; after re-pull, next run shows 3 sources without reload.
 - 2026-10-10 — Review minors fixed. MCP: timeout says "thinking too slowly" (not "unemployed"), cut-off/non-JSON replies become tool errors, HTTP errors show only Ollama's `error` text, blank `decrypt_recruiter` answer says "No comment." (Python 31/31). Page: failed run clears old sources/meter/engagement, spaces-only input shows the "fill out this field" hint, failed query embed keeps corpus vectors, last stream line without newline is parsed. Spec: lazy embedding, `pip install "mcp>=2"`, app URL `/frontend/`.
 - 2026-10-10 — Review fixes: "Agree?" anywhere on the last line counts (no double "Agree?" after emoji/hashtags); preamble strip only drops a whole "Here is ...:" line (keeps "Here's what I learned: ..." openers); `#output` gets `aria-busy` while streaming. JS 27/27, Python 26/26.
@@ -37,3 +39,4 @@ Update this file when work lands. Newest first.
 
 ## Next
 
+- [ ] Tunnel URL changes on every restart; for a permanent link host on HF Spaces (Docker, CPU, slow).
