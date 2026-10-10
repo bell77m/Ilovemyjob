@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ilovemyjob - LinkedIn Translator</title>
+<style>
+/* Tokens and recipes from DESIGN.md (Netscape 96) */
+:root {
+  --silver: #c0c0c0; --hl: #ffffff; --light: #dfdfdf; --shadow: #808080; --dark: #0a0a0a;
+  --navy: #000080; --navy-end: #1084d0; --teal: #008080; --lavender: #ccccff;
+  --link: #0000ee; --link-visited: #551a8b; --link-active: #ff0000;
+  --font-page: "Times New Roman", Times, serif;
+  --font-ui: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, sans-serif;
+  --font-mono: "Courier New", Courier, monospace;
+  --raised:  inset -1px -1px var(--dark), inset 1px 1px var(--hl), inset -2px -2px var(--shadow), inset 2px 2px var(--light);
+  --sunken:  inset -1px -1px var(--hl), inset 1px 1px var(--shadow), inset -2px -2px var(--light), inset 2px 2px var(--dark);
+  --window:  inset -1px -1px var(--dark), inset 1px 1px var(--light), inset -2px -2px var(--shadow), inset 2px 2px var(--hl);
+  --default: inset 0 0 0 1px var(--dark), inset -2px -2px var(--dark), inset 2px 2px var(--hl), inset -3px -3px var(--shadow), inset 3px 3px var(--light);
+  --i-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='7'%3E%3Cpath d='M0 0h2v1H0zM6 0h2v1H6zM1 1h2v1H1zM5 1h2v1H5zM2 2h4v1H2zM3 3h2v1H3zM2 4h4v1H2zM1 5h2v1H1zM5 5h2v1H5zM0 6h2v1H0zM6 6h2v1H6z'/%3E%3C/svg%3E");
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 8px; background: var(--teal); color: #000; font: 16px/1.25 var(--font-page); }
+a { color: var(--link); }
+a:visited { color: var(--link-visited); }
+a:active { color: var(--link-active); }
+:focus-visible { outline: 1px dotted currentColor; outline-offset: 1px; }
+hr { border: 0; border-top: 1px solid var(--shadow); border-bottom: 1px solid var(--hl); margin: 16px 0; }
+hr.rainbow { height: 4px; border: 0; background: linear-gradient(90deg, #f00 0 17%, #f90 0 33%, #ff0 0 50%, #0f0 0 67%, #00f 0 83%, #90f 0); }
+
+button {
+  min-width: 75px; min-height: 24px; padding: 0 12px;
+  font: 11px var(--font-ui); color: #000; background: var(--silver);
+  border: 0; border-radius: 0; box-shadow: var(--raised);
+}
+button.default { box-shadow: var(--default); }
+button:active:not(:disabled) { box-shadow: var(--sunken); padding: 2px 11px 0 13px; }
+button:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
+button:disabled { color: var(--shadow); text-shadow: 1px 1px var(--hl); }
+
+input, select, textarea {
+  min-height: 24px; padding: 3px 4px; font: 11px var(--font-ui); color: #000;
+  background: #fff; border: 0; border-radius: 0; box-shadow: var(--sunken);
+}
+input[type="range"] { box-shadow: none; background: transparent; padding: 0; }
+::placeholder { color: var(--shadow); opacity: 1; }
+textarea { width: 100%; resize: vertical; }
+
+.window { background: var(--silver); padding: 3px; box-shadow: var(--window); font: 11px/1.2 var(--font-ui); max-width: 760px; margin: 0 auto; }
+.titlebar {
+  display: flex; align-items: center; justify-content: space-between; gap: 4px;
+  height: 18px; padding: 0 2px 0 3px; color: #fff; font: bold 11px var(--font-ui);
+  background: linear-gradient(90deg, var(--navy), var(--navy-end));
+}
+.tb-btns { display: flex; flex: none; }
+.tb-btn { width: 16px; height: 14px; background: var(--silver); box-shadow: var(--raised); margin-left: 2px; }
+.window-body { padding: 8px; }
+
+.page { color: #000; font: 16px/1.25 var(--font-page); }
+.page h1, .page h2, .page h3 { color: #000; }
+.page h2 { font-size: 24px; line-height: 1.2; text-align: center; margin: 8px 0; }
+.page h3 { font-size: 19px; line-height: 1.2; margin: 8px 0 4px; }
+.wordart {
+  margin: 8px 0; font: 700 36px/1.1 "Arial Black", Arial, Helvetica, sans-serif; text-align: center;
+  background: linear-gradient(#000080, #990099 50%, #cc0000); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.small { font-size: 13px; }
+.center { text-align: center; }
+
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.field-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.buttons { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
+
+.output {
+  min-height: 140px; margin: 0; padding: 6px; background: #fff; box-shadow: var(--sunken);
+  white-space: pre-wrap; font: 16px/1.25 var(--font-page);
+}
+.sources { margin: 8px 0 0; padding-left: 20px; font-size: 13px; }
+
+.progress-wrap { display: flex; align-items: center; gap: 6px; }
+.progress { flex: 1; height: 16px; padding: 2px; box-shadow: var(--sunken); background: #fff; }
+.progress > span { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, var(--navy) 0 8px, transparent 8px 10px); }
+
+.dialog { width: 360px; max-width: 100%; margin: 16px auto; }
+.dialog-body { display: flex; gap: 12px; padding: 12px 8px 8px; }
+.dialog-icon { flex: none; width: 32px; height: 32px; background: #cc0000; color: #fff; text-align: center; font: bold 22px/32px var(--font-page); }
+
+.statusbar { display: flex; gap: 2px; height: 20px; margin-top: 2px; max-width: 760px; margin-left: auto; margin-right: auto; }
+.statusbar > * { padding: 3px 4px; white-space: nowrap; overflow: hidden; box-shadow: inset 1px 1px var(--shadow), inset -1px -1px var(--hl); }
+.statusbar .msg { flex: 1; }
+.statusbar .meter { width: 120px; padding: 3px; }
+.statusbar .meter > span { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, var(--navy) 0 8px, transparent 8px 10px); }
+
+.badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 16px 0; }
+.b88 { display: flex; flex-direction: column; justify-content: center; width: 88px; height: 31px; font: bold 9px/1.15 Verdana, Tahoma, sans-serif; text-align: center; }
+.b-best { background: #000; color: #0f0; }
+.b-pad { background: #fff; color: #000080; box-shadow: inset 0 0 0 1px #000; }
+.b-free { background: #000080; color: #ff0; }
+
+@media (max-width: 640px) {
+  .page h2 { font-size: 20px; }
+  .wordart { font-size: 28px; }
+}
+
+.ad {
+  position: fixed; top: 0; left: 0; z-index: 5; width: 170px;
+  background: var(--silver); padding: 3px; box-shadow: var(--window); font: 11px/1.2 var(--font-ui);
+}
+.ad .titlebar { font-size: 11px; }
+.ad .tb-btn { min-width: 16px; min-height: 14px; padding: 0; background-image: var(--i-close); background-position: center; background-repeat: no-repeat; }
+.ad .tb-btn:active:not(:disabled) { padding: 0; }
+.ad img { display: block; width: 100%; height: 110px; object-fit: cover; }
+.ad .ad-body { padding: 6px 4px 4px; }
+.ad p { margin: 0 0 6px; font: 13px/1.2 var(--font-page); }
+.ad .ad-link { font: bold 13px var(--font-page); }
+.ad.horror { background: #000; }
+.ad.horror .ad-body, .ad.horror p { color: #fff; }
+.ad.horror .ad-link { color: #ff0; }
+.ad.horror .ad-link:visited { color: #ff0; }
+
+.scare { position: fixed; inset: 0; z-index: 1000; width: 100%; height: 100%; object-fit: cover; }
+</style>
+</head>
+<body>
+<div class="window" role="application" aria-labelledby="app-title">
+  <div class="titlebar">
+    <span id="app-title">Ilovemyjob - LinkedIn Translator</span>
+    <span class="tb-btns" aria-hidden="true"><span class="tb-btn"></span><span class="tb-btn"></span><span class="tb-btn"></span></span>
+  </div>
+  <div class="window-body">
+    <div class="page">
+      <header class="center">
+        <h1 class="wordart">Ilovemyjob</h1>
+        <p>Welcome to the <b>LinkedIn Translator</b>! Type a normal sentence and get peak LinkedIn speak.</p>
+        <hr class="rainbow">
+      </header>
+
+      <main>
+        <section aria-labelledby="translate-heading">
+          <h2 id="translate-heading">Translate</h2>
+          <div class="field">
+            <label for="input-text"><b>What actually happened?</b></label>
+            <textarea id="input-text" rows="4" maxlength="500" placeholder="I got fired."></textarea>
+          </div>
+          <div class="field-row">
+            <label for="cringe">Cringe level:</label>
+            <input id="cringe" type="range" min="1" max="10" value="7" aria-describedby="cringe-value">
+            <span id="cringe-value">7</span>
+          </div>
+          <div class="buttons">
+            <button type="button" class="default">Make It Professional&trade;</button>
+            <button type="button" disabled>Decrypt Recruiter</button>
+          </div>
+        </section>
+
+        <hr>
+
+        <section aria-labelledby="output-heading">
+          <h3 id="output-heading">Your LinkedIn Post</h3>
+          <div class="output" id="output" aria-live="polite"></div>
+          <div class="buttons" style="margin-top: 8px;">
+            <button type="button" disabled>Copy to Clipboard</button>
+          </div>
+          <div class="progress-wrap" style="margin-top: 8px;">
+            <span class="small">Synergy Meter:</span>
+            <span class="progress" aria-hidden="true"><span></span></span>
+          </div>
+        </section>
+
+        <section aria-labelledby="sources-heading">
+          <h3 id="sources-heading">Sources: 3 thought leaders</h3>
+          <ol class="sources" id="sources"></ol>
+        </section>
+
+        <div class="dialog window" role="alertdialog" aria-labelledby="err-title" hidden>
+          <div class="titlebar">
+            <span id="err-title">Error</span>
+            <span class="tb-btns" aria-hidden="true"><span class="tb-btn"></span></span>
+          </div>
+          <div class="dialog-body">
+            <div class="dialog-icon" aria-hidden="true">X</div>
+            <div>
+              <p>This program has performed an illegal operation: your LLM is unemployed.</p>
+              <p>Run <code>ollama serve</code>.</p>
+              <div class="buttons"><button type="button" class="default">OK</button></div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="center">
+        <hr>
+        <p class="small">You are visitor number 0001337</p>
+        <p class="small">Last updated: 10/10/26 &middot; <a href="mailto:webmaster@example.com">E-mail the webmaster</a></p>
+        <div class="badges">
+          <a href="#top"><span class="b88 b-best"><span>Best viewed at</span><span>800 x 600</span></span></a>
+          <a href="#top"><span class="b88 b-pad"><span>Made with</span><span>Notepad</span></span></a>
+          <a href="#top"><span class="b88 b-free"><span>Get a FREE</span><span>homepage!</span></span></a>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<div class="statusbar window" role="status">
+  <span class="msg">Document: Done</span>
+  <span class="meter" aria-hidden="true"><span></span></span>
+  <span>Local file</span>
+</div>
+
+<div class="ad horror" role="complementary" aria-label="Advertisement">
+  <div class="titlebar"><span>THE SHROUD - Now Showing!</span><span class="tb-btns"><button type="button" class="tb-btn" aria-label="Close advertisement"></button></span></div>
+  <img src="images/ghost.jpg" alt="A ghost in a white sheet and sunglasses standing in a dark parking garage">
+  <div class="ad-body">
+    <p>It has been waiting in the parking garage since 1996. Rated R for Really Scary. Coming to a theater near you... if you dare!</p>
+    <a class="ad-link" href="#">Click here for tickets!</a>
+  </div>
+</div>
+
+<div class="ad" role="complementary" aria-label="Advertisement">
+  <div class="titlebar"><span>Shellfish Synergy Lunch</span><span class="tb-btns"><button type="button" class="tb-btn" aria-label="Close advertisement"></button></span></div>
+  <img src="images/lobster.jpg" alt="Two cooked red lobsters piled together">
+  <div class="ad-body">
+    <p>Feeling stuck in your career? Our lobsters have been there. Pinch your way to the top at our Networking Lunch. Bring business cards!</p>
+    <a class="ad-link" href="#">Click here to book a claw!</a>
+  </div>
+</div>
+
+<div class="ad horror" role="complementary" aria-label="Advertisement">
+  <div class="titlebar"><span>THE SHROUD - Midnight Screening</span><span class="tb-btns"><button type="button" class="tb-btn" aria-label="Close advertisement"></button></span></div>
+  <img src="images/ghost.jpg" alt="A ghost in a white sheet and sunglasses standing in a dark parking garage">
+  <div class="ad-body">
+    <p>Nobody leaves the parking garage. Nobody. Four tickets left for the midnight show. Bring a friend. Or don't.</p>
+    <a class="ad-link" href="#">Click here before it finds you!</a>
+  </div>
+</div>
+
+<div class="ad" role="complementary" aria-label="Advertisement">
+  <div class="titlebar"><span>Lobster Lunch - Limited Claws</span><span class="tb-btns"><button type="button" class="tb-btn" aria-label="Close advertisement"></button></span></div>
+  <img src="images/lobster.jpg" alt="Close-up of red lobster claws and legs">
+  <div class="ad-body">
+    <p>Your next promotion is in the claws. Network over seafood and leave with a new job offer. Lunch is on us. Mostly.</p>
+    <a class="ad-link" href="#">Click here to reserve a seat!</a>
+  </div>
+</div>
+
+<script>
+// Screensaver-style float: linear motion, bounce off the viewport edges
+(() => {
+  const ads = [...document.querySelectorAll('.ad')];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SLOW = 30, FAST = 600, BURST = 2.5, COOLDOWN = 12; // px per second, seconds
+  const state = ads.map((el, i) => {
+    const angle = (i * 73 + 20) * Math.PI / 180;
+    return { el, x: 0, y: 0, ux: Math.cos(angle), uy: Math.sin(angle), bursting: false, burstUntil: 0, nextBurst: performance.now() + (4 + i * 3) * 1000 };
+  });
+
+  const place = () => state.forEach((s, i) => {
+    const w = s.el.offsetWidth, h = s.el.offsetHeight;
+    const maxX = Math.max(0, innerWidth - w), maxY = Math.max(0, innerHeight - h);
+    if (reduce) {
+      s.x = (i % 2 ? maxX : 0); s.y = (i < 2 ? 0 : maxY);
+    } else {
+      s.x = Math.min(s.x, maxX); s.y = Math.min(s.y, maxY);
+      if (!s.started) { s.x = Math.random() * maxX; s.y = Math.random() * maxY; s.started = true; }
+    }
+    s.el.style.transform = `translate(${s.x}px, ${s.y}px)`;
+  });
+
+  let last = performance.now();
+  const frame = now => {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    state.forEach(s => {
+      if (s.el.hidden) return;
+      const w = s.el.offsetWidth, h = s.el.offsetHeight;
+      const maxX = Math.max(0, innerWidth - w), maxY = Math.max(0, innerHeight - h);
+      if (!s.bursting && now >= s.nextBurst) { s.bursting = true; s.burstUntil = now + BURST * 1000; }
+      if (s.bursting && now >= s.burstUntil) { s.bursting = false; s.nextBurst = now + COOLDOWN * 1000; }
+      const speed = s.bursting ? FAST : SLOW;
+      s.x += s.ux * speed * dt; s.y += s.uy * speed * dt;
+      if (s.x <= 0) { s.x = 0; s.ux = Math.abs(s.ux); }
+      if (s.x >= maxX) { s.x = maxX; s.ux = -Math.abs(s.ux); }
+      if (s.y <= 0) { s.y = 0; s.uy = Math.abs(s.uy); }
+      if (s.y >= maxY) { s.y = maxY; s.uy = -Math.abs(s.uy); }
+      s.el.style.transform = `translate(${s.x}px, ${s.y}px)`;
+    });
+    requestAnimationFrame(frame);
+  };
+
+  let reopenTimer = null;
+  const reopen = () => {
+    state.forEach((s, i) => {
+      s.el.hidden = false; s.started = false; s.bursting = false;
+      s.nextBurst = performance.now() + (4 + i * 3) * 1000;
+    });
+    place();
+  };
+  ads.forEach(el => el.querySelector('.tb-btn').addEventListener('click', () => {
+    el.hidden = true;
+    if (!reopenTimer && ads.every(a => a.hidden)) {
+      reopenTimer = setTimeout(() => { reopenTimer = null; reopen(); }, 12000);
+    }
+  }));
+  addEventListener('resize', place);
+  place();
+  if (!reduce) requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+// Status bar "AI" spam: append "AI" every 2s in spam phases, silence in pause phases
+(() => {
+  const status = document.querySelector('.statusbar .msg');
+  const MIN = 60000;
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  const spam = (duration, next) => {
+    const timer = setInterval(() => { status.textContent += 'AI'; }, 2000);
+    setTimeout(() => { clearInterval(timer); next(); }, duration);
+  };
+  const pause = (duration, next) => setTimeout(next, duration);
+
+  const cycle = () => {
+    const pauseMin = rand(4, 8);
+    const spamMin = rand(1, pauseMin - 1);
+    pause(pauseMin * MIN, () => spam(spamMin * MIN, cycle));
+  };
+
+  spam(20 * 1000, () => pause(3 * MIN, () => spam(10 * MIN, cycle)));
+})();
+</script>
+
+<img class="scare" src="images/haunted-house.jpg" alt="Silhouette of a haunted house with lit windows and a dead tree" hidden>
+<script>
+// One-time jump scare: full-page haunted house at 5 minutes, gone after 1 second
+setTimeout(() => {
+  const scare = document.querySelector('.scare');
+  scare.hidden = false;
+  setTimeout(() => scare.remove(), 1000);
+}, 5 * 60 * 1000);
+</script>
+</body>
+</html>

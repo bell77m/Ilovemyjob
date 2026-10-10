@@ -4,6 +4,13 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `frontend/index.html`: static LinkedIn Translator page skeleton in Netscape 96 theme (input, cringe slider, buttons, output, sources, Win95 error dialog, status bar). No functionality wired yet.
+- 2026-10-10 — `frontend/index.html`: four floating ads (ghost as horror movie, lobster as networking lunch) bouncing like a screensaver, linear motion via JS, static under reduced motion.
+- 2026-10-10 — `frontend/index.html`: ad close buttons hide their ad and stop it moving.
+- 2026-10-10 — `frontend/index.html`: ads crawl at 30px/s, burst to 600px/s for 2.5s, then 12s cooldown before the next burst.
+- 2026-10-10 — `frontend/index.html`: full-page haunted house image shown once for 1s, 5 minutes after page load.
+- 2026-10-10 — `frontend/index.html`: status bar "Document: Done" appends "AI" every 2s: 20s, pause 3 min, spam 10 min, then random pause (4–8 min) and shorter random spam.
+- 2026-10-10 — `frontend/index.html`: when every ad is closed, all ads reappear at random positions after 12s.
 - 2026-10-10 — `docs/superpowers/plans/2026-10-10-linkedin-translator.md`: implementation plan, 10 TDD tasks (MVP page, corpus, RAG, MCP server, reverse mode, Synergy Meter, acceptance pass).
 - 2026-10-10 — `compose.yaml`: Docker setup (Ollama 0.33.2 with CORS preset, one-shot model pull, nginx on :8000). Documented in `REQUIREMENTS.md` section 8.
 - 2026-10-10 — `REQUIREMENTS.md`: added F13 RAG (`cringe.json` + `nomic-embed-text`, in-RAM cosine top-3) and F14 MCP server (`mcp_server.py`, FastMCP, stdio), shared `prompts.json`.
