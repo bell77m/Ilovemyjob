@@ -4,6 +4,7 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `cringe.json`: starter RAG corpus, 12 hand-written human → LinkedIn pairs (§4 rows first).
 - 2026-10-10 — `prompts.json` (shared models + prompts + buzzwords), `frontend/lib.js` (`buildPrompt`, `enforceAgree`, `splitNdjson`), `frontend/tests.js` + `tests.html` (11 checks, Node or browser).
 - 2026-10-10 — `frontend/index.html`: static LinkedIn Translator page skeleton in Netscape 96 theme (input, cringe slider, buttons, output, sources, Win95 error dialog, status bar). No functionality wired yet.
 - 2026-10-10 — `frontend/index.html`: four floating ads (ghost as horror movie, lobster as networking lunch) bouncing like a screensaver, linear motion via JS, static under reduced motion.
@@ -28,5 +29,6 @@ Update this file when work lands. Newest first.
 - [ ] Execute the plan in `docs/superpowers/plans/2026-10-10-linkedin-translator.md`, task by task.
 - [ ] Fill `AGENTS.md` Overview and Commands once the app has a stack.
 - [ ] Build `index.html` LinkedIn Translator MVP (F1–F5 in `REQUIREMENTS.md`).
-- [ ] Write `cringe.json` corpus, then RAG (F13) and `mcp_server.py` (F14).
+- [ ] Browser RAG (F13, plan Task 5).
+- [ ] Team grows cringe.json to 30–50 pairs (commuting, kids, pets, weather, gym, coffee...).
 - [ ] Replace sample address `http://www.homepages.example/~stupid/` in `preview.html`.
