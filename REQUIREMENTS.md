@@ -160,7 +160,7 @@ Goal: AI agents get LinkedIn powers. Demo: Claude Code turns its own commit mess
 - Official Python SDK: `pip install mcp` (2.x), `from mcp.server.mcpserver import MCPServer` (1.x called it `FastMCP`).
 - Transport: **stdio only**. No HTTP port, nothing exposed on the network.
 - Talks to the same Ollama (`localhost:11434`) with `urllib.request` from the standard library. No `requests`, no `httpx`.
-- Reads `prompts.json` and `cringe.json`. Does the same RAG as the browser: embeds the corpus once at startup and keeps the vectors in a list.
+- Reads `prompts.json` and `cringe.json`. Does the same RAG as the browser: embeds the corpus on the first tool call (so the server starts even while Ollama is down) and keeps the vectors in a list.
 
 ### Tools
 
@@ -197,15 +197,15 @@ $env:OLLAMA_ORIGINS = "http://localhost:8000"
 ollama serve
 # 3. In the project folder:
 python -m http.server 8000
-# 4. Open http://localhost:8000
+# 4. Open http://localhost:8000/frontend/
 # 5. Optional, for MCP:
-pip install mcp
+pip install "mcp>=2"
 claude mcp add ilovemyjob -- python mcp_server.py
 ```
 
 Opening `index.html` via `file://` fails CORS unless `OLLAMA_ORIGINS=*`. Use the Python server.
 
-**Or with Docker** (replaces steps 1–3): `docker compose up -d`, wait for the `pull` container to exit, open http://localhost:8000. `compose.yaml` runs Ollama (CORS preset), pulls both models into a volume once, and serves the folder with nginx. Stop host Ollama first (port 11434). Docker Ollama is CPU-only on Windows/macOS, so for the live demo prefer native Ollama if the laptop has a GPU.
+**Or with Docker** (replaces steps 1–3): `docker compose up -d`, wait for the `pull` container to exit, open http://localhost:8000/frontend/. `compose.yaml` runs Ollama (CORS preset), pulls both models into a volume once, and serves the folder with nginx. Stop host Ollama first (port 11434). Docker Ollama is CPU-only on Windows/macOS, so for the live demo prefer native Ollama if the laptop has a GPU.
 
 ## 9. Non-functional requirements
 

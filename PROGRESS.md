@@ -4,6 +4,7 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — Review minors fixed. MCP: timeout says "thinking too slowly" (not "unemployed"), cut-off/non-JSON replies become tool errors, HTTP errors show only Ollama's `error` text, blank `decrypt_recruiter` answer says "No comment." (Python 31/31). Page: failed run clears old sources/meter/engagement, spaces-only input shows the "fill out this field" hint, failed query embed keeps corpus vectors, last stream line without newline is parsed. Spec: lazy embedding, `pip install "mcp>=2"`, app URL `/frontend/`.
 - 2026-10-10 — Review fixes: "Agree?" anywhere on the last line counts (no double "Agree?" after emoji/hashtags); preamble strip only drops a whole "Here is ...:" line (keeps "Here's what I learned: ..." openers); `#output` gets `aria-busy` while streaming. JS 27/27, Python 26/26.
 - 2026-10-10 — `frontend/index.html` wired: streaming translate (F1/F2), Win95 error `<dialog>` (F5), "Agree?" rule (F12), copy button, loading messages, remembered cringe slider (F3/F4/F6), browser RAG + sources (F13), Decrypt Recruiter (F7), Synergy Meter + fake engagement (F8/F9). Checked live in Chrome: stream, sources, reverse, Ollama-down dialog, 375px no scroll, only localhost requests.
 - 2026-10-10 — `frontend/lib.js`: `cosine`, `topK`, `synergyScore` (24 checks in `tests.js`).
@@ -35,10 +36,6 @@ Update this file when work lands. Newest first.
 ## Next
 
 - [ ] Register the MCP server in Claude Code: `claude mcp add ilovemyjob -- python "<repo>\mcp_server.py"`, then try `/mcp` and "Use linkedinify on: I fixed a typo."
-- [ ] MCP error polish (review minors): timeout says "unemployed" even when Ollama is just slow; `IncompleteRead`/bad JSON skip the vibes-only fallback; raw `{"error":...}` JSON in messages; `decrypt_recruiter` can return "".
-- [ ] `REQUIREMENTS.md` §7 says corpus is embedded "at startup"; code embeds on first call (on purpose). Update spec line.
-- [ ] Setup docs: `pip install "mcp>=2"` (1.x users get ImportError).
-- [ ] Page polish (review minors): clear old sources/meter/engagement when a run fails; status-bar "AI" spam glues onto messages ("vibes onlyAIAI"), maybe give it its own span; parse leftover `buf` after stream ends; whitespace-only input gives no feedback; failed query embed also throws away good corpus vectors.
 - [ ] Register MCP in Claude Code and run REQUIREMENTS §10 MCP boxes; browser check with `nomic-embed-text` removed ("Sources: vibes only").
 - [ ] Team grows cringe.json to 30–50 pairs (commuting, kids, pets, weather, gym, coffee...).
 - [ ] Replace sample address `http://www.homepages.example/~stupid/` in `preview.html`.
