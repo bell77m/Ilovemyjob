@@ -12,6 +12,7 @@ Index of project documentation.
 | [prompts.json](../prompts.json), [cringe.json](../cringe.json) | Shared config (models, prompts, buzzwords) and RAG corpus, read by page and MCP server. |
 | [compose.yaml](../compose.yaml) | Docker setup: Ollama + models + nginx. `docker compose up -d`. |
 | [compose.demo.yaml](../compose.demo.yaml) | Hackathon demo: GPU + free public URL via Cloudflare tunnel. See file header. |
+| [superpowers/specs/](superpowers/specs/) | Design specs. Current: TanStack frontend rebuild. |
 | [superpowers/plans/](superpowers/plans/) | Implementation plans. Current: LinkedIn Translator, 10 tasks. |
 | [PROGRESS.md](../PROGRESS.md) | What's done, what's next. |
 | [AGENTS.md](../AGENTS.md) | Instructions for coding agents. |

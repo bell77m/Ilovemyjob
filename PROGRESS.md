@@ -4,6 +4,7 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `docs/superpowers/specs/2026-10-10-tanstack-frontend-design.md`: design for rebuilding `frontend/` on TanStack Start + Router + Query + Form (React, full parity incl. jokes, Ollama called server-side).
 - 2026-10-10 — `nginx.conf`: dotfiles return 404. Before, the public tunnel served `.git/`, `.claude/` and `.remember/` (whole repo is mounted). Checked locally and through the tunnel URL.
 - 2026-10-10 — `cringe.json`: grown to 40 hand-written pairs (commuting, pets, kids, weather, office tech, career setbacks); live retrieval picks on-topic examples. `preview.html` location bar shows `http://localhost:8000/preview.html`.
 - 2026-10-10 — Hackathon demo sharing: `compose.demo.yaml` (Ollama on NVIDIA GPU + Cloudflare quick tunnel), `nginx.conf` proxies only `/api/generate` and `/api/embed`, page uses same-origin Ollama when not on localhost. Checked through public tunnel: page, embed, generate (~2s warm on RTX 4050), `/api/pull` and `/api/tags` return 404.
