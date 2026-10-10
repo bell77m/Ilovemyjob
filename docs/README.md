@@ -4,6 +4,7 @@ Index of project documentation.
 
 | Doc | What it covers |
 |-----|----------------|
+| [REQUIREMENTS.md](../REQUIREMENTS.md) | LinkedIn Translator spec: features, tech stack, setup, demo checklist. |
 | [DESIGN.md](../DESIGN.md) | Netscape 96 UI theme: colors, type, layout, components, starter CSS. All UI follows it. |
 | [preview.html](../preview.html) | Live preview of the theme. Open in a browser. |
 | [PROGRESS.md](../PROGRESS.md) | What's done, what's next. |
