@@ -1,8 +1,9 @@
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
-import { enforceAgree, type Pair } from '../lib/cringe'
-import { getBuzzwords, translate } from '../server/fns'
+import { useEffect, useRef, useState } from 'react'
+import { enforceAgree, splitNdjson, type Pair } from '../lib/cringe'
+import type { Event } from '../server/core'
+import { getBuzzwords } from '../server/fns'
 import { useErrorDialog } from './ErrorDialog'
 import { Sources } from './Sources'
 import { useStatus } from './StatusBar'
@@ -21,6 +22,14 @@ export function Translator({ reverse }: { reverse: boolean }) {
   const [out, setOut] = useState('')
   const [result, setResult] = useState<Result | null>(null)
   const [copyOk, setCopyOk] = useState(false)
+  // Leaving the page mid-stream hangs up; the server then stops Ollama too.
+  const abortRef = useRef<AbortController | null>(null)
+  useEffect(() => {
+    // pagehide also covers tab close and Chrome's back/forward cache, which can keep a fetch alive.
+    const hangUp = () => abortRef.current?.abort()
+    addEventListener('pagehide', hangUp)
+    return () => { removeEventListener('pagehide', hangUp); hangUp() }
+  }, [])
 
   const run = useMutation({
     mutationFn: async (input: { text: string; cringe: number }) => {
@@ -34,17 +43,32 @@ export function Translator({ reverse }: { reverse: boolean }) {
       }
       tick()
       const ticker = setInterval(tick, 1500)
+      const ac = new AbortController()
+      abortRef.current = ac
       try {
-        let stream
-        try { stream = await translate({ data: { ...input, reverse } }) } catch { throw new Error(SERVER_DOWN) }
-        for await (const ev of stream) {
-          if (ev.type === 'sources') examples = ev.examples
-          else if (ev.type === 'error') throw new Error(ev.message)
-          else if (ev.type === 'token') {
-            if (!started) { started = true; clearInterval(ticker); text = '' }
-            text += ev.text
-            setOut(text)
+        // Any network-level failure (server down, died mid-stream, 5xx) reads as SERVER_DOWN.
+        const r = await fetch('/api/translate', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...input, reverse }), signal: ac.signal,
+        }).catch(e => { throw ac.signal.aborted ? e : new Error(SERVER_DOWN) })
+        if (!r.ok || !r.body) throw new Error(SERVER_DOWN)
+        const reader = r.body.pipeThrough(new TextDecoderStream()).getReader()
+        let buf = '', finished = false
+        while (!finished) {
+          const chunk = await reader.read().catch(e => { throw ac.signal.aborted ? e : new Error(SERVER_DOWN) })
+          let events: Event[]
+          ;[events, buf] = splitNdjson(buf + (chunk.done ? '\n' : chunk.value))
+          for (const ev of events) {
+            if (ev.type === 'sources') examples = ev.examples
+            else if (ev.type === 'error') throw new Error(ev.message)
+            else if (ev.type === 'done') finished = true
+            else {
+              if (!started) { started = true; clearInterval(ticker); text = '' }
+              text += ev.text
+              setOut(text)
+            }
           }
+          if (chunk.done && !finished) throw new Error(SERVER_DOWN)
         }
       } catch (e) {
         if (!started) setOut('')
@@ -63,10 +87,12 @@ export function Translator({ reverse }: { reverse: boolean }) {
       setStatus(r.examples.length ? 'Document: Done' : 'Sources: vibes only')
     },
     onError: (e: Error) => {
+      if (e.name === 'AbortError') return // we left the page on purpose
       setStatus('Document: Error')
       showError(e.message)
     },
   })
+
 
   const form = useForm({
     defaultValues: { text: '', cringe: 7 },

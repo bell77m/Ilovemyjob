@@ -121,6 +121,39 @@ test('emoji split across chunks stays intact', async () => {
   expect((await run(f)).find(e => e.type === 'token')).toEqual({ type: 'token', text: '🚀' })
 })
 
+// Endless Ollama stream that records whether we hung up on it.
+function endless() {
+  const state = { cancelled: false }
+  const body = new ReadableStream<Uint8Array>({
+    async pull(c) { await new Promise(r => setTimeout(r, 5)); c.enqueue(new TextEncoder().encode('{"response":"x"}\n')) },
+    cancel() { state.cancelled = true },
+  })
+  return { state, body }
+}
+
+test('client abort cancels the Ollama stream', async () => {
+  const { state, body } = endless()
+  const { f } = fakeFetch({ generate: () => new Response(body) })
+  const ac = new AbortController()
+  const gen = createEngine({ fetch: f, cfg, corpus }).translate({ text: 'hi', cringe: 7, reverse: false }, ac.signal)
+  const seen: string[] = []
+  for await (const e of gen) {
+    seen.push(e.type)
+    if (e.type === 'token') ac.abort()
+  }
+  expect(state.cancelled).toBe(true)
+  expect(seen.at(-1)).toBe('error')
+})
+
+test('stopping the generator early cancels the Ollama stream', async () => {
+  const { state, body } = endless()
+  const { f } = fakeFetch({ generate: () => new Response(body) })
+  for await (const e of createEngine({ fetch: f, cfg, corpus }).translate({ text: 'hi', cringe: 7, reverse: false })) {
+    if (e.type === 'token') break
+  }
+  expect(state.cancelled).toBe(true)
+})
+
 test('embed failure still yields tokens with no examples', async () => {
   const { f } = fakeFetch({ embed: () => Response.json({ error: 'model not found' }, { status: 404 }) })
   const ev = await run(f)

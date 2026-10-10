@@ -1,5 +1,15 @@
 import { expect, test } from 'vitest'
-import { buildPrompt, cosine, enforceAgree, synergyScore, topK } from './cringe'
+import { buildPrompt, cosine, enforceAgree, splitNdjson, synergyScore, topK } from './cringe'
+
+test('splitNdjson parses whole lines and keeps the partial line', () => {
+  expect(splitNdjson('{"a":1}\n{"b"')).toEqual([[{ a: 1 }], '{"b"'])
+})
+test('splitNdjson finishes a line split across chunks', () => {
+  expect(splitNdjson('{"b"' + ':2}\n')).toEqual([[{ b: 2 }], ''])
+})
+test('splitNdjson skips blank lines', () => {
+  expect(splitNdjson('\n\n')[0]).toEqual([])
+})
 
 const fired = { human: 'I got fired.', linkedin: 'Thrilled.' }
 

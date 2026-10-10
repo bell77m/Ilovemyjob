@@ -25,6 +25,13 @@ export function enforceAgree(text: string): string {
   return t ? t + '\n\nAgree?' : 'Agree?'
 }
 
+// Newline-delimited JSON (Ollama's stream, and our /api/translate): a network chunk can end mid-line.
+export function splitNdjson(buf: string): [any[], string] {
+  const lines = buf.split('\n')
+  const rest = lines.pop() ?? ''
+  return [lines.filter(l => l.trim()).map(l => JSON.parse(l)), rest]
+}
+
 // Vector DB: an array and a for loop.
 // ponytail: O(n) scan per query, fine to a few hundred pairs; precompute vectors past that.
 export function cosine(a: number[], b: number[]): number {

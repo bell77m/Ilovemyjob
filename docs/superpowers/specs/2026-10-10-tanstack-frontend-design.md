@@ -70,13 +70,13 @@ Deleted after parity: `frontend/index.html`, `frontend/lib.js`, `frontend/tests.
 1. **Index on load.** `__root` runs `useQuery({queryKey: ['corpus-index'], queryFn: indexCorpus})`. Server embeds `human` side of `cringe.json` (with `search_document: ` prefix) once, keeps vectors in module memory, returns `{count}`. Status bar: `Indexing thought leadership... 0/40` while pending, `40/40` on success, `Sources: vibes only` on error. Query retry: 1. A failed index is not cached server-side, so the next translate retries.
 2. **Translate.** `TranslateForm` (TanStack Form: `text` required, trimmed, max 500; `cringe` 1–10, saved to `localStorage`) submits to `useMutation`. Mutation calls server function `translate({text, cringe, reverse})`.
 3. **Server.** Validates input again (trust boundary: trim, cut to 500, clamp cringe). Retrieves top-3 examples (side `human` for forward, `linkedin` for reverse; `search_query: ` prefix). Empty list if embedding fails. Calls `POST /api/generate` with `stream: true`.
-4. **Stream to client.** Server function returns a `ReadableStream` of NDJSON events:
+4. **Stream to client.** `POST /api/translate` (a Start server route) returns a `ReadableStream` of NDJSON events:
    - `{"type":"sources","examples":[...]}` first,
    - `{"type":"token","text":"..."}` per Ollama chunk,
    - `{"type":"done"}` or `{"type":"error","message":"..."}`.
 5. **Client.** Shows rotating loading messages until the first token, appends tokens, then on done: forward output gets `enforceAgree`, reverse gets `trim`. Shows sources ("Sources: 3 thought leaders" / "vibes only"), Synergy Meter, fake engagement (forward only). Copy enabled.
 
-Streaming risk: plan task 1 is a spike proving a Start server function can return a stream the client reads incrementally. If not, fallback: a Start server route `POST /api/translate` returning the same NDJSON `Response`.
+Implementation note (2026-10-10): server functions stream fine, but Start 1.168 never tells a server-function generator that the browser hung up, so Ollama kept generating for up to 120 s. The server route gets `request.signal` and stream `cancel()`, so translation uses the route; `indexCorpus` and `getBuzzwords` stay server functions. The page aborts its request on unmount and `pagehide`.
 
 ### Error handling
 

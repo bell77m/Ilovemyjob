@@ -4,6 +4,7 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — Review fix: translation streams via `POST /api/translate` (Start server route) instead of a server function, so leaving the page or closing the tab stops Ollama immediately (was up to 120 s of ghost generation). Page aborts on unmount and `pagehide`. Vitest 43/43.
 - 2026-10-10 — `frontend/` rebuilt on TanStack Start + Router + Query + Form (React 19, TS): `/` and `/decrypt`, server functions call Ollama and run RAG (browser never talks to Ollama), streamed events, all jokes ported (ads, AI spam, jump scare). Vitest 38/38. Docker `web` builds `frontend/Dockerfile` (62 MB), tunnel points at the app, `nginx.conf` and vanilla page removed. Checked live: stream, sources, decrypt, empty input, Ollama down, server down, 375px, only own-origin requests.
 - 2026-10-10 — `docs/superpowers/specs/2026-10-10-tanstack-frontend-design.md`: design for rebuilding `frontend/` on TanStack Start + Router + Query + Form (React, full parity incl. jokes, Ollama called server-side).
 - 2026-10-10 — `nginx.conf`: dotfiles return 404. Before, the public tunnel served `.git/`, `.claude/` and `.remember/` (whole repo is mounted). Checked locally and through the tunnel URL.
@@ -41,6 +42,7 @@ Update this file when work lands. Newest first.
 
 ## Next
 
+- [ ] TanStack review minors: cringe 0 becomes 7 not 1 (`core.ts` clamp); request with no body throws a raw error (validate in route); mid-stream server errors could show raw text; 120 s timeout covers whole stream (idle timeout better on CPU); index status lost `0/N`; late index result can overwrite translate status; silent buzzword fetch failure; `mcp_server.py` docstring still says `frontend/lib.js`; Dockerfile runs as root (`USER node`); empty submit doesn't focus the textarea.
 - [ ] Restart the running Docker stack on the new `web` image: `docker compose -f compose.yaml -f compose.demo.yaml up -d --build` (tunnel URL changes).
 - [ ] RAG: drop examples below a similarity cutoff (3rd match for "I got fired." is "I burnt my toast."; model sometimes copies it).
 - [ ] Tunnel URL changes on every restart; for a permanent link host on HF Spaces (Docker, CPU, slow).

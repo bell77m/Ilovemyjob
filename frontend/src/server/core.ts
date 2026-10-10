@@ -1,6 +1,6 @@
 // Server-side translator engine: RAG over cringe.json + streaming Ollama generate.
 // Pure apart from the injected fetch, so tests run without Ollama. Wired to Start in fns.ts.
-import { buildPrompt, topK, type Pair } from '../lib/cringe'
+import { buildPrompt, splitNdjson, topK, type Pair } from '../lib/cringe'
 
 export type Config = {
   ollama: string; model: string; embedModel: string; temperature: number
@@ -22,20 +22,14 @@ class OllamaError extends Error {}
 // fetch rejects on refused connection, and on abort when the timeout fires (also mid-stream).
 const cannotReach = (e: unknown) => new OllamaError((e as Error)?.name === 'TimeoutError' ? SLOW : UNEMPLOYED)
 
-// Ollama streams newline-delimited JSON; a network chunk can end mid-line.
-export function splitNdjson(buf: string): [any[], string] {
-  const lines = buf.split('\n')
-  const rest = lines.pop() ?? ''
-  return [lines.filter(l => l.trim()).map(l => JSON.parse(l)), rest]
-}
-
 export function createEngine({ fetch, cfg, corpus, timeoutMs = 120_000 }: Deps) {
-  async function call(path: string, body: object) {
+  async function call(path: string, body: object, signal?: AbortSignal) {
+    const timeout = AbortSignal.timeout(timeoutMs)
     let r: Response
     try {
       r = await fetch(cfg.ollama + path, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs),
+        body: JSON.stringify(body), signal: signal ? AbortSignal.any([timeout, signal]) : timeout,
       })
     } catch (e) { throw cannotReach(e) }
     if (!r.ok) {
@@ -73,7 +67,8 @@ export function createEngine({ fetch, cfg, corpus, timeoutMs = 120_000 }: Deps) 
     }
   }
 
-  async function* translate(input: { text: string; cringe: number; reverse: boolean }): AsyncGenerator<Event> {
+  // signal = the browser's request: when it goes away, stop Ollama instead of generating for nobody.
+  async function* translate(input: { text: string; cringe: number; reverse: boolean }, signal?: AbortSignal): AsyncGenerator<Event> {
     // Trust boundary: the server function can be called without the form.
     const text = String(input.text ?? '').trim().slice(0, 500)
     if (!text) { yield { type: 'error', message: 'text is empty' }; return }
@@ -86,21 +81,30 @@ export function createEngine({ fetch, cfg, corpus, timeoutMs = 120_000 }: Deps) 
         model: cfg.model, system: reverse ? cfg.reverseSystem : cfg.system,
         prompt: buildPrompt(text, cringe, examples, reverse),
         stream: true, options: { temperature: cfg.temperature },
-      })
+      }, signal)
       const reader = r.body!.getReader()
-      const decoder = new TextDecoder() // stream mode keeps multi-byte emoji intact across chunks
-      let buf = ''
-      for (;;) {
-        let chunk: ReadableStreamReadResult<Uint8Array>
-        try { chunk = await reader.read() } catch (e) { throw cannotReach(e) }
-        buf += chunk.done ? decoder.decode() + '\n' : decoder.decode(chunk.value, { stream: true })
-        let msgs: any[]
-        ;[msgs, buf] = splitNdjson(buf)
-        for (const m of msgs) {
-          if (m.error) throw new OllamaError('Ollama said: ' + m.error)
-          if (m.response) yield { type: 'token', text: m.response }
+      const hangUp = () => { reader.cancel().catch(() => {}) }
+      signal?.addEventListener('abort', hangUp)
+      try {
+        const decoder = new TextDecoder() // stream mode keeps multi-byte emoji intact across chunks
+        let buf = ''
+        for (;;) {
+          let chunk: ReadableStreamReadResult<Uint8Array>
+          try { chunk = await reader.read() } catch (e) { throw cannotReach(e) }
+          if (signal?.aborted) throw new OllamaError('Request cancelled.')
+          buf += chunk.done ? decoder.decode() + '\n' : decoder.decode(chunk.value, { stream: true })
+          let msgs: any[]
+          ;[msgs, buf] = splitNdjson(buf)
+          for (const m of msgs) {
+            if (m.error) throw new OllamaError('Ollama said: ' + m.error)
+            if (m.response) yield { type: 'token', text: m.response }
+          }
+          if (chunk.done) break
         }
-        if (chunk.done) break
+      } finally {
+        // Also runs when the consumer stops iterating early (generator.return()).
+        signal?.removeEventListener('abort', hangUp)
+        hangUp()
       }
       yield { type: 'done' }
     } catch (e) {
