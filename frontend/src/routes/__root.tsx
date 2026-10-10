@@ -4,6 +4,7 @@ import { HeadContent, Link, Outlet, Scripts, createRootRoute } from '@tanstack/r
 import { useState } from 'react'
 import { Ads } from '../components/Ads'
 import { ErrorDialogProvider } from '../components/ErrorDialog'
+import { IndexStatus } from '../components/IndexStatus'
 import { JumpScare } from '../components/JumpScare'
 import { StatusProvider } from '../components/StatusBar'
 import css from '../styles.css?url'
@@ -29,6 +30,7 @@ function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <ErrorDialogProvider>
             <StatusProvider>
+              <IndexStatus />
               <div className="window" role="application" aria-labelledby="app-title">
                 <div className="titlebar">
                   <span id="app-title">Ilovemyjob - LinkedIn Translator</span>

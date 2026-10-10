@@ -1,3 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { Translator } from '../components/Translator'
 
-export const Route = createFileRoute('/')({ component: () => <h1 className="wordart">Ilovemyjob</h1> })
+export const Route = createFileRoute('/')({ component: () => <Translator reverse={false} /> })

@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DecryptRouteImport } from './routes/decrypt'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DecryptRoute = DecryptRouteImport.update({
+  id: '/decrypt',
+  path: '/decrypt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/decrypt': typeof DecryptRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/decrypt': typeof DecryptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/decrypt': typeof DecryptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/decrypt'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/decrypt'
+  id: '__root__' | '/' | '/decrypt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DecryptRoute: typeof DecryptRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/decrypt': {
+      id: '/decrypt'
+      path: '/decrypt'
+      fullPath: '/decrypt'
+      preLoaderRoute: typeof DecryptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DecryptRoute: DecryptRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
