@@ -104,7 +104,7 @@ def test_top_k_best_first_and_zero_safe():
 def test_linkedinify_enforces_agree_and_clamps_cringe():
     use_fake()
     assert m.linkedinify("I got fired.", 99).endswith("Agree?")
-    assert "Cringe level: 10/10" in fake_ollama.last["prompt"]
+    assert "Cringe level: 11/10" in fake_ollama.last["prompt"]
     m.linkedinify("I got fired.", -5)
     assert "Cringe level: 1/10" in fake_ollama.last["prompt"]
 

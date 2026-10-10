@@ -55,7 +55,7 @@ All under `frontend/`. Versions pinned exactly in `package.json` (at design time
 | `src/lib/cringe.ts` | Pure logic ported from `lib.js`: `buildPrompt`, `enforceAgree`, `splitNdjson`, `cosine`, `topK`, `synergyScore`. Shared by server and client. |
 | `src/components/` | `Ads`, `JumpScare`, `StatusBar` (with AI spam), `ErrorDialog`, `SynergyMeter`, `Sources`, `TranslateForm`, `PostOutput`. |
 | `src/styles.css` | Current inline CSS from `index.html`, moved verbatim. |
-| `public/images/` | `ghost.jpg`, `lobster.jpg`, `haunted-house.jpg` (moved from `frontend/images/`). |
+| `public/images/` | `ghost.jpg`, `lobster.jpg` (moved from `frontend/images/`). |
 | `src/**/*.test.ts` | Vitest tests. |
 
 Deleted after parity: `frontend/index.html`, `frontend/lib.js`, `frontend/tests.js`, `frontend/tests.html`.
@@ -96,7 +96,7 @@ Every error re-enables buttons and stops the loading ticker. Model output and so
 Ported as components with the same behavior and timings as today:
 - `Ads`: 4 ads, screensaver bounce, 30 px/s crawl, 600 px/s burst for 2.5 s, 12 s cooldown, static under `prefers-reduced-motion`, close buttons, all reappear 12 s after the last is closed.
 - `StatusBar`: appends "AI" every 2 s: 20 s, pause 3 min, spam 10 min, then random pause 4–8 min and shorter random spam.
-- `JumpScare`: haunted house full-page for 1 s, once, 5 minutes after load.
+- `JumpScare`: corporate blue screen, once, on a trigger word in the textarea or 5 minutes after load (was a haunted house image).
 - Visitor counter, badges, rainbow `hr`, WordArt.
 
 ## Run and deploy

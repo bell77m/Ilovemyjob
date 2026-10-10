@@ -40,7 +40,7 @@ The pitch needs the words "RAG" and "MCP". Build after the MVP works.
 
 ### Should have (if time)
 
-- **F6 Cringe level slider** 1–10. Sent to the prompt. 1 = "mildly corporate". 10 = "my toddler's first steps taught me about B2B sales".
+- **F6 Cringe level slider** 1–11 (this one goes to eleven; the prompt says "11/10"). Sent to the prompt. 1 = "mildly corporate". 10 = "my toddler's first steps taught me about B2B sales".
 - **F7 Reverse mode** (`Decrypt Recruiter`). LinkedIn post → what it really means. Same model, different system prompt.
 - **F8 Synergy Meter.** Count buzzwords in output (synergy, leverage, journey, humbled, grateful, disrupt, passionate, thought leader, 🚀). Show as Win95 progress bar. Pure JS, word list in an array.
 - **F9 Fake engagement.** Under the post: random "1,337 reactions · 420 comments · 69 reposts". Visitor counter style per `DESIGN.md`.

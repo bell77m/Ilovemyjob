@@ -10,6 +10,7 @@ import { useStatus } from './StatusBar'
 import { SynergyMeter } from './SynergyMeter'
 
 const LOADING = ['Humbled to be generating...', 'Leveraging synergies...', 'Circling back...', 'Disrupting your request...']
+const DODGE = ['Nice try.', 'Commitment issues?', 'Fine. Take it.']
 const SERVER_DOWN = 'The server is unemployed. Run `npm run dev` in frontend/.'
 
 type Result = { text: string; examples: Pair[]; engage: string }
@@ -22,6 +23,8 @@ export function Translator({ reverse }: { reverse: boolean }) {
   const [out, setOut] = useState('')
   const [result, setResult] = useState<Result | null>(null)
   const [copyOk, setCopyOk] = useState(false)
+  // Copy button runs from the mouse 3 times, then gives up. Mouse only: touch and keyboard copy normally.
+  const [dodge, setDodge] = useState({ n: 0, x: 0, y: 0 })
   // Leaving the page mid-stream hangs up; the server then stops Ollama too.
   const abortRef = useRef<AbortController | null>(null)
   useEffect(() => {
@@ -35,6 +38,7 @@ export function Translator({ reverse }: { reverse: boolean }) {
     mutationFn: async (input: { text: string; cringe: number }) => {
       setResult(null)
       setCopyOk(false)
+      setDodge({ n: 0, x: 0, y: 0 })
       let started = false, i = 0, text = '', examples: Pair[] = []
       const tick = () => {
         const msg = LOADING[i++ % LOADING.length]
@@ -142,13 +146,13 @@ export function Translator({ reverse }: { reverse: boolean }) {
               <div className="field-row">
                 <label htmlFor="cringe">Cringe level:</label>
                 <input
-                  id="cringe" type="range" min={1} max={10} value={field.state.value} aria-describedby="cringe-value"
+                  id="cringe" type="range" min={1} max={11} value={field.state.value} aria-describedby="cringe-value"
                   onChange={e => {
                     field.handleChange(+e.target.value)
                     try { localStorage.cringe = e.target.value } catch { /* not remembered, still works */ }
                   }}
                 />
-                <span id="cringe-value">{field.state.value}</span>
+                <span id="cringe-value">{field.state.value === 11 ? '11 (this one goes to eleven)' : field.state.value}</span>
               </div>
             )}
           </form.Field>
@@ -167,7 +171,16 @@ export function Translator({ reverse }: { reverse: boolean }) {
         <div className="output" aria-live="polite" aria-busy={run.isPending || undefined}>{out}</div>
         <p className="small">{result?.engage}</p>
         <div className="buttons" style={{ marginTop: 8 }}>
-          <button type="button" disabled={!copyOk || run.isPending} onClick={copy}>Copy to Clipboard</button>
+          <button
+            type="button" disabled={!copyOk || run.isPending} onClick={copy}
+            style={{ transform: `translate(${dodge.x}px, ${dodge.y}px)` }}
+            onPointerEnter={e => {
+              if (!copyOk || e.pointerType !== 'mouse' || dodge.n >= DODGE.length) return
+              const r = () => Math.round((Math.random() - 0.5) * 160)
+              setDodge({ n: dodge.n + 1, x: r(), y: r() / 4 })
+              setStatus(DODGE[dodge.n])
+            }}
+          >Copy to Clipboard</button>
         </div>
         <SynergyMeter text={result?.text ?? null} words={words} />
       </section>

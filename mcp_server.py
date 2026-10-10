@@ -118,9 +118,9 @@ def generate(system, prompt):
 
 @mcp.tool()
 def linkedinify(text: str, cringe: int = 7) -> str:
-    """Rewrite a plain sentence as a LinkedIn post. text: max 500 chars. cringe: 1 (mild) to 10 (unhinged)."""
+    """Rewrite a plain sentence as a LinkedIn post. text: max 500 chars. cringe: 1 (mild) to 11 (one louder)."""
     text = clean(text, 500)
-    cringe = max(1, min(10, int(cringe)))
+    cringe = max(1, min(11, int(cringe)))  # this one goes to eleven
     return enforce_agree(generate(CFG["system"], build_prompt(text, cringe, examples_for(text, "human"))))
 
 

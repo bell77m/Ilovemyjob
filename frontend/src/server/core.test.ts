@@ -76,7 +76,7 @@ test('input is cut to 500', async () => {
 test('cringe is clamped', async () => {
   const { f, calls } = fakeFetch()
   await run(f, { text: 'hi', cringe: 99, reverse: false })
-  expect(calls.generate[0].prompt).toContain('Cringe level: 10/10')
+  expect(calls.generate[0].prompt).toContain('Cringe level: 11/10')
 })
 
 test('empty text yields error event', async () => {

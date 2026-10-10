@@ -72,7 +72,7 @@ export function createEngine({ fetch, cfg, corpus, timeoutMs = 120_000 }: Deps) 
     // Trust boundary: the server function can be called without the form.
     const text = String(input.text ?? '').trim().slice(0, 500)
     if (!text) { yield { type: 'error', message: 'text is empty' }; return }
-    const cringe = Math.min(10, Math.max(1, Math.round(Number(input.cringe)) || 7))
+    const cringe = Math.min(11, Math.max(1, Math.round(Number(input.cringe)) || 7))
     const reverse = Boolean(input.reverse)
     const examples = await retrieve(text, reverse ? 'linkedin' : 'human')
     yield { type: 'sources', examples }
