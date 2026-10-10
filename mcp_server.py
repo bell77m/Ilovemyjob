@@ -3,6 +3,7 @@
 Spec: REQUIREMENTS.md section 7. Python twin of frontend/lib.js; keep the two in step.
 Never print() here: stdout is the MCP channel.
 """
+import http.client
 import json
 import math
 import re
@@ -17,6 +18,8 @@ HERE = Path(__file__).resolve().parent  # agents launch us from any cwd
 CFG = json.loads((HERE / "prompts.json").read_text(encoding="utf-8"))
 CORPUS = json.loads((HERE / "cringe.json").read_text(encoding="utf-8"))
 UNEMPLOYED = "Ollama is unemployed. Run `ollama serve`."
+SLOW = "Ollama is thinking too slowly (over 120 s). Try again, or use a smaller model or a GPU."
+GARBLED = "Ollama's answer was cut off or unreadable. Try again."
 
 mcp = MCPServer("ilovemyjob")
 
@@ -75,9 +78,20 @@ def ollama(path, body):
         with urllib.request.urlopen(req, timeout=120) as r:
             return json.load(r)
     except urllib.error.HTTPError as e:  # Ollama is up but unhappy, e.g. model not pulled
-        raise OllamaError("Ollama said: " + e.read().decode(errors="replace")) from e
-    except (urllib.error.URLError, OSError) as e:
+        body = e.read().decode(errors="replace")
+        try:
+            body = json.loads(body)["error"]
+        except (ValueError, KeyError, TypeError):
+            pass
+        raise OllamaError("Ollama said: " + body) from e
+    except TimeoutError as e:  # before OSError: up but slow (CPU-only Docker) is not down
+        raise OllamaError(SLOW) from e
+    except urllib.error.URLError as e:
+        raise OllamaError(SLOW if isinstance(e.reason, TimeoutError) else UNEMPLOYED) from e
+    except OSError as e:
         raise OllamaError(UNEMPLOYED) from e
+    except (http.client.HTTPException, ValueError) as e:  # died mid-reply, or not Ollama on that port
+        raise OllamaError(GARBLED) from e
 
 
 # side ('human' | 'linkedin') -> corpus vectors. Built on first call, not at startup,
@@ -114,7 +128,7 @@ def linkedinify(text: str, cringe: int = 7) -> str:
 def decrypt_recruiter(post: str) -> str:
     """Translate a LinkedIn post into the one or two honest sentences the author means. post: max 3000 chars."""
     post = clean(post, 3000)
-    return generate(CFG["reverseSystem"], build_prompt(post, 0, examples_for(post, "linkedin"), reverse=True))
+    return generate(CFG["reverseSystem"], build_prompt(post, 0, examples_for(post, "linkedin"), reverse=True)) or "No comment."
 
 
 @mcp.tool()

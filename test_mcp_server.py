@@ -1,5 +1,6 @@
 """Plain-assert checks for mcp_server.py. Run: python test_mcp_server.py"""
 import asyncio
+import http.client
 import io
 import urllib.error
 
@@ -173,6 +174,34 @@ def test_http_error_shows_ollama_message():
     def not_found(*a, **k):
         raise urllib.error.HTTPError("u", 404, "Not Found", {}, io.BytesIO(b'{"error":"model not found"}'))
     assert "model not found" in _with_urlopen(lambda: m.decrypt_recruiter("Thrilled."), not_found)
+
+
+def test_http_error_shows_only_the_error_field():
+    def not_found(*a, **k):
+        raise urllib.error.HTTPError("u", 404, "Not Found", {}, io.BytesIO(b'{"error":"model not found"}'))
+    assert _with_urlopen(lambda: m.decrypt_recruiter("Thrilled."), not_found) == "Ollama said: model not found"
+
+
+def test_timeout_says_ollama_is_slow_not_down():
+    def too_slow(*a, **k):
+        raise TimeoutError("timed out")
+    assert _with_urlopen(lambda: m.decrypt_recruiter("Thrilled."), too_slow) == m.SLOW
+
+
+def test_cut_off_reply_is_a_tool_error():
+    def hang_up(*a, **k):
+        raise http.client.IncompleteRead(b"")
+    assert _with_urlopen(lambda: m.decrypt_recruiter("Thrilled."), hang_up) == m.GARBLED
+
+
+def test_non_json_reply_is_a_tool_error():
+    assert _with_urlopen(lambda: m.decrypt_recruiter("Thrilled."), lambda *a, **k: io.BytesIO(b"<html>")) == m.GARBLED
+
+
+def test_decrypt_recruiter_blank_answer_says_no_comment():
+    m.ollama = lambda path, body: {"embeddings": [[1.0, 0.0]] * len(body["input"])} if path == "/api/embed" else {"response": "  \n "}
+    m._vecs.clear()
+    assert m.decrypt_recruiter("Thrilled to announce...") == "No comment."
 
 
 def test_agent_sees_error_text():
