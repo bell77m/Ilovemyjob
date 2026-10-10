@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { buildPrompt, cosine, enforceAgree, splitNdjson, synergyScore, topK } from './cringe'
+import { buildPrompt, cosine, enforceAgree, paywall, splitNdjson, synergyScore, topK } from './cringe'
 
 test('splitNdjson parses whole lines and keeps the partial line', () => {
   expect(splitNdjson('{"a":1}\n{"b"')).toEqual([[{ a: 1 }], '{"b"'])
@@ -88,4 +88,11 @@ test('synergyScore caps at 100', () => {
 })
 test('synergyScore of plain text is 0', () => {
   expect(synergyScore('I ate a sandwich.', W).score).toBe(0)
+})
+
+test('paywall hides the last sentence and Agree?', () => {
+  expect(paywall('Fired. Grateful. Growth.\n\nAgree?')).toEqual(['Fired. Grateful.', ' Growth.\n\nAgree?'])
+})
+test('paywall hides a one-sentence post entirely', () => {
+  expect(paywall('Agree?')).toEqual(['', 'Agree?'])
 })

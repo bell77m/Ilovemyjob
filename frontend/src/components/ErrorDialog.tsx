@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react'
+import { sfx } from '../lib/sfx'
 
 const Ctx = createContext<(msg: string) => void>(() => {})
 export const useErrorDialog = () => useContext(Ctx)
@@ -9,6 +10,7 @@ export function ErrorDialogProvider({ children }: { children: ReactNode }) {
   const [msg, setMsg] = useState('')
   const show = useCallback((m: string) => {
     setMsg(m)
+    sfx.error()
     if (ref.current && !ref.current.open) ref.current.showModal()
   }, [])
   return (

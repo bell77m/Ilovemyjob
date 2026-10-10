@@ -55,3 +55,11 @@ export function synergyScore(text: string, words: string[]): { score: number; bu
   }
   return { score: Math.min(100, hits * 10), buzzwords }
 }
+
+// Premium paywall: split off the conclusion (last two sentence ends, so usually the point plus "Agree?").
+// One sentence or none: the whole post is premium.
+export function paywall(text: string): [free: string, paid: string] {
+  const ends = [...text.matchAll(/[.!?](?=\s)/g)].map(m => m.index + 1)
+  const cut = ends.length >= 2 ? ends[ends.length - 2] : 0
+  return [text.slice(0, cut), text.slice(cut)]
+}

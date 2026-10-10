@@ -1,7 +1,9 @@
 import { useForm } from '@tanstack/react-form'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
-import { enforceAgree, splitNdjson, type Pair } from '../lib/cringe'
+import { enforceAgree, paywall, splitNdjson, type Pair } from '../lib/cringe'
+import { dialUp } from '../lib/modem'
+import { sfx } from '../lib/sfx'
 import type { Event } from '../server/core'
 import { getBuzzwords } from '../server/fns'
 import { useErrorDialog } from './ErrorDialog'
@@ -9,11 +11,12 @@ import { Sources } from './Sources'
 import { useStatus } from './StatusBar'
 import { SynergyMeter } from './SynergyMeter'
 
-const LOADING = ['Humbled to be generating...', 'Leveraging synergies...', 'Circling back...', 'Disrupting your request...']
+// Dial-up first, then the usual LinkedIn humility. Long waits loop back to redialing.
+const LOADING = ['Dialing 1-800-SYNERGY...', 'Handshaking at 14.4 kbps...', 'Connected at 14,400 bps.', 'Humbled to be generating...', 'Leveraging synergies...', 'Circling back...', 'Disrupting your request...']
 const DODGE = ['Nice try.', 'Commitment issues?', 'Fine. Take it.']
 const SERVER_DOWN = 'The server is unemployed. Run `npm run dev` in frontend/.'
 
-type Result = { text: string; examples: Pair[]; engage: string }
+type Result = { text: string; examples: Pair[]; engage: string; premium: boolean }
 
 // One translator for both pages. reverse = Decrypt Recruiter (LinkedIn post -> honest sentence).
 export function Translator({ reverse }: { reverse: boolean }) {
@@ -27,6 +30,8 @@ export function Translator({ reverse }: { reverse: boolean }) {
   const [dodge, setDodge] = useState({ n: 0, x: 0, y: 0 })
   // Leaving the page mid-stream hangs up; the server then stops Ollama too.
   const abortRef = useRef<AbortController | null>(null)
+  // Every 3rd finished post hides its conclusion behind LinkedIn Premium 96.
+  const posts = useRef(0)
   useEffect(() => {
     // pagehide also covers tab close and Chrome's back/forward cache, which can keep a fetch alive.
     const hangUp = () => abortRef.current?.abort()
@@ -47,6 +52,7 @@ export function Translator({ reverse }: { reverse: boolean }) {
       }
       tick()
       const ticker = setInterval(tick, 1500)
+      const hangUp = dialUp()
       const ac = new AbortController()
       abortRef.current = ac
       try {
@@ -67,7 +73,7 @@ export function Translator({ reverse }: { reverse: boolean }) {
             else if (ev.type === 'error') throw new Error(ev.message)
             else if (ev.type === 'done') finished = true
             else {
-              if (!started) { started = true; clearInterval(ticker); text = '' }
+              if (!started) { started = true; clearInterval(ticker); hangUp(); text = '' }
               text += ev.text
               setOut(text)
             }
@@ -79,15 +85,18 @@ export function Translator({ reverse }: { reverse: boolean }) {
         throw e
       } finally {
         clearInterval(ticker)
+        hangUp()
       }
       const final = reverse ? text.trim() : enforceAgree(text)
       const n = (max: number) => Math.floor(Math.random() * max).toLocaleString('en-US')
-      return { text: final, examples, engage: reverse ? '' : `${n(9999)} reactions · ${n(999)} comments · ${n(99)} reposts` }
+      const premium = !reverse && ++posts.current % 3 === 0
+      return { text: final, examples, premium, engage: reverse ? '' : `${n(9999)} reactions · ${n(999)} comments · ${n(99)} reposts` }
     },
     onSuccess: r => {
       setOut(r.text)
       setResult(r)
       setCopyOk(true)
+      if (r.premium) sfx.kaching(); else sfx.tada()
       setStatus(r.examples.length ? 'Document: Done' : 'Sources: vibes only')
     },
     onError: (e: Error) => {
@@ -108,8 +117,9 @@ export function Translator({ reverse }: { reverse: boolean }) {
     try { if (localStorage.cringe) form.setFieldValue('cringe', +localStorage.cringe) } catch { /* slider still works */ }
   }, [form])
 
-  const copy = () => navigator.clipboard.writeText(out)
-    .then(() => setStatus('Copied. Friends lost: all.'))
+  // Premium posts copy without the conclusion. Pay up.
+  const copy = () => navigator.clipboard.writeText(result?.premium ? paywall(out)[0] : out)
+    .then(() => setStatus(result?.premium ? 'Copied. Conclusion sold separately.' : 'Copied. Friends lost: all.'))
     .catch(() => showError('Clipboard blocked. Select the post and press Ctrl+C.'))
 
   return (
@@ -131,7 +141,7 @@ export function Translator({ reverse }: { reverse: boolean }) {
                 id="input-text" rows={4} maxLength={500}
                 placeholder={reverse ? "Thrilled to announce I'm embarking on a new chapter... Agree?" : 'I got fired.'}
                 value={field.state.value}
-                onChange={e => field.handleChange(e.target.value)}
+                onChange={e => { field.handleChange(e.target.value); sfx.key() }}
                 onBlur={field.handleBlur}
                 aria-invalid={field.state.meta.errors.length > 0}
                 aria-describedby={field.state.meta.errors.length ? 'text-error' : undefined}
@@ -168,7 +178,15 @@ export function Translator({ reverse }: { reverse: boolean }) {
 
       <section aria-labelledby="output-heading">
         <h3 id="output-heading">{reverse ? 'What They Actually Mean' : 'Your LinkedIn Post'}</h3>
-        <div className="output" aria-live="polite" aria-busy={run.isPending || undefined}>{out}</div>
+        <div className="output" aria-live="polite" aria-busy={run.isPending || undefined}>
+          {result?.premium ? <>{paywall(out)[0]}<span className="redacted" aria-hidden="true">{paywall(out)[1]}</span></> : out}
+        </div>
+        {result?.premium && (
+          <p className="small center">
+            <b>Upgrade to LinkedIn Premium 96 for $49.95/mo to see the conclusion.</b>{' '}
+            <button type="button" onClick={() => dispatchEvent(new Event('clippy'))}>Upgrade Now</button>
+          </p>
+        )}
         <p className="small">{result?.engage}</p>
         <div className="buttons" style={{ marginTop: 8 }}>
           <button
@@ -178,6 +196,7 @@ export function Translator({ reverse }: { reverse: boolean }) {
               if (!copyOk || e.pointerType !== 'mouse' || dodge.n >= DODGE.length) return
               const r = () => Math.round((Math.random() - 0.5) * 160)
               setDodge({ n: dodge.n + 1, x: r(), y: r() / 4 })
+              sfx.boing()
               setStatus(DODGE[dodge.n])
             }}
           >Copy to Clipboard</button>
