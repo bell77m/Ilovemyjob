@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netscape 96 Preview</title>
+<style>
+/* Tokens and recipes from DESIGN.md */
+:root {
+  --silver: #c0c0c0; --hl: #ffffff; --light: #dfdfdf; --shadow: #808080; --dark: #0a0a0a;
+  --navy: #000080; --navy-end: #1084d0; --teal: #008080; --lavender: #ccccff;
+  --link: #0000ee; --link-visited: #551a8b; --link-active: #ff0000;
+  --font-page: "Times New Roman", Times, serif;
+  --font-ui: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, sans-serif;
+  --font-mono: "Courier New", Courier, monospace;
+  --font-fun: "Comic Sans MS", "Comic Sans", cursive;
+  --raised:  inset -1px -1px var(--dark), inset 1px 1px var(--hl), inset -2px -2px var(--shadow), inset 2px 2px var(--light);
+  --sunken:  inset -1px -1px var(--hl), inset 1px 1px var(--shadow), inset -2px -2px var(--light), inset 2px 2px var(--dark);
+  --pressed: inset -1px -1px var(--hl), inset 1px 1px var(--dark), inset -2px -2px var(--light), inset 2px 2px var(--shadow);
+  --window:  inset -1px -1px var(--dark), inset 1px 1px var(--light), inset -2px -2px var(--shadow), inset 2px 2px var(--hl);
+  --default: inset 0 0 0 1px var(--dark), inset -2px -2px var(--dark), inset 2px 2px var(--hl), inset -3px -3px var(--shadow), inset 3px 3px var(--light);
+  /* 1-bit pixel glyphs */
+  --i-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M3 0h1v1h1v1h1v1h1v1H0V3h1V2h1V1h1z'/%3E%3C/svg%3E");
+  --i-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0h7v1H6v1H5v1H4v1H3V3H2V2H1V1H0z'/%3E%3C/svg%3E");
+  --i-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M3 0h1v7H3V6H2V5H1V4H0V3h1V2h1V1h1z'/%3E%3C/svg%3E");
+  --i-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='7'%3E%3Cpath d='M0 0h1v1h1v1h1v1h1v1H3v1H2v1H1v1H0z'/%3E%3C/svg%3E");
+  --i-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7'%3E%3Cpath d='M6 0h1v3H6zM5 1h1v3H5zM4 2h1v3H4zM3 3h1v3H3zM2 4h1v3H2zM1 3h1v3H1zM0 2h1v3H0z'/%3E%3C/svg%3E");
+  --i-min: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='7'%3E%3Cpath d='M1 5h6v2H1z'/%3E%3C/svg%3E");
+  --i-max: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9'%3E%3Cpath fill-rule='evenodd' d='M0 0h9v9H0zM1 2v6h7V2z'/%3E%3C/svg%3E");
+  --i-close: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='7'%3E%3Cpath d='M0 0h2v1H0zM6 0h2v1H6zM1 1h2v1H1zM5 1h2v1H5zM2 2h4v1H2zM3 3h2v1H3zM2 4h4v1H2zM1 5h2v1H1zM5 5h2v1H5zM0 6h2v1H0zM6 6h2v1H6z'/%3E%3C/svg%3E");
+  /* Page variant: default gray */
+  --page-bg: #c0c0c0; --page-fg: #000; --heading: #000;
+  --a: var(--link); --a-visited: var(--link-visited);
+  --wordart: linear-gradient(#000080, #990099 50%, #cc0000); --wordart-shadow: #fff;
+}
+:root[data-theme="white"] { --page-bg: #fff; }
+:root[data-theme="night"] {
+  --page-bg: #000; --page-fg: #fff; --heading: #0f0; --a: #0ff; --a-visited: #f0f;
+  --wordart: linear-gradient(#ff0, #f90 50%, #f00); --wordart-shadow: #900;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --page-bg: #000; --page-fg: #fff; --heading: #0f0; --a: #0ff; --a-visited: #f0f;
+    --wordart: linear-gradient(#ff0, #f90 50%, #f00); --wordart-shadow: #900;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 8px; background: var(--teal); }
+a { color: var(--a); }
+a:visited { color: var(--a-visited); }
+a:active { color: var(--link-active); }
+:focus-visible { outline: 1px dotted currentColor; outline-offset: 1px; }
+::selection { background: var(--navy); color: #fff; }
+hr { border: 0; border-top: 1px solid var(--shadow); border-bottom: 1px solid var(--hl); margin: 16px 0; }
+hr.rainbow { height: 4px; border: 0; background: linear-gradient(90deg, #f00 0 17%, #f90 0 33%, #ff0 0 50%, #0f0 0 67%, #00f 0 83%, #90f 0); }
+code, pre { font: 13px/1.2 var(--font-mono); }
+
+/* Chrome: silver stays silver on every page variant */
+.window:not(.browser), .side { --a: var(--link); --a-visited: var(--link-visited); --heading: #000; color: #000; }
+.window { background: var(--silver); padding: 3px; box-shadow: var(--window); font: 11px/1.2 var(--font-ui); }
+.titlebar {
+  display: flex; align-items: center; justify-content: space-between; gap: 4px;
+  height: 18px; padding: 0 2px 0 3px; color: #fff; font: bold 11px var(--font-ui);
+  background: linear-gradient(90deg, var(--navy), var(--navy-end));
+}
+.titlebar > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.window.inactive .titlebar { background: var(--shadow); color: var(--light); }
+.tb-btns { display: flex; flex: none; }
+.tb-btn { width: 16px; height: 14px; background: var(--silver) center no-repeat; box-shadow: var(--raised); }
+.tb-btn.min { background-image: var(--i-min); }
+.tb-btn.max { background-image: var(--i-max); }
+.tb-btn.close { background-image: var(--i-close); margin-left: 2px; }
+.window-body { padding: 8px; }
+
+button {
+  min-width: 75px; min-height: 24px; padding: 0 12px;
+  font: 11px var(--font-ui); color: #000; background: var(--silver);
+  border: 0; border-radius: 0; box-shadow: var(--raised);
+}
+button.default { box-shadow: var(--default); }
+button:active:not(:disabled), button[aria-pressed="true"] { box-shadow: var(--pressed); padding: 2px 11px 0 13px; }
+button:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
+button:disabled { color: var(--shadow); text-shadow: 1px 1px var(--hl); }
+
+input, select, textarea {
+  min-height: 24px; padding: 3px 4px; font: 11px var(--font-ui); color: #000;
+  background: #fff; border: 0; border-radius: 0; box-shadow: var(--sunken);
+}
+::placeholder { color: var(--shadow); opacity: 1; }
+textarea { width: 100%; resize: vertical; }
+input[type="checkbox"], input[type="radio"] {
+  appearance: none; flex: none; width: 13px; height: 13px; min-height: 0; padding: 0; margin: 0;
+  background: #fff center / 7px 7px no-repeat;
+}
+input[type="checkbox"]:checked { background-image: var(--i-check); }
+input[type="radio"] { width: 12px; height: 12px; border-radius: 50%; } /* the one circle */
+input[type="radio"]:checked { background: radial-gradient(circle, #000 2px, #fff 2px); }
+label.opt { display: flex; align-items: center; gap: 6px; min-height: 24px; }
+.select { position: relative; display: inline-block; }
+.select select { appearance: none; padding-right: 24px; min-width: 150px; }
+.select::after {
+  content: ""; position: absolute; top: 2px; right: 2px; bottom: 2px; width: 16px; pointer-events: none;
+  background: var(--silver) var(--i-down) center no-repeat; box-shadow: var(--raised);
+}
+fieldset {
+  margin: 0 0 8px; padding: 6px 8px 8px;
+  border: 1px solid var(--shadow); box-shadow: inset 1px 1px var(--hl), 1px 1px var(--hl);
+}
+legend { padding: 0 2px; }
+.field { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.buttons { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+
+/* Scrollbar: 16px, raised thumb, checkerboard track */
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track { background: repeating-conic-gradient(var(--silver) 0 25%, var(--hl) 0 50%) 0 0 / 2px 2px; }
+::-webkit-scrollbar-thumb { background: var(--silver); box-shadow: var(--raised); }
+::-webkit-scrollbar-corner { background: var(--silver); }
+::-webkit-scrollbar-button:single-button { display: block; width: 16px; height: 16px; background: var(--silver) center no-repeat; box-shadow: var(--raised); }
+::-webkit-scrollbar-button:single-button:active { box-shadow: var(--pressed); }
+::-webkit-scrollbar-button:vertical:decrement { background-image: var(--i-up); }
+::-webkit-scrollbar-button:vertical:increment { background-image: var(--i-down); }
+::-webkit-scrollbar-button:horizontal:decrement { background-image: var(--i-left); }
+::-webkit-scrollbar-button:horizontal:increment { background-image: var(--i-right); }
+
+/* Tooltip: no animation */
+[data-tip] { position: relative; }
+[data-tip]:is(:hover, :focus-visible)::after {
+  content: attr(data-tip); position: absolute; left: 0; top: calc(100% + 2px); z-index: 2; pointer-events: none;
+  padding: 2px 4px; white-space: nowrap; background: #ffffe1; color: #000; border: 1px solid #000; font: 11px var(--font-ui);
+}
+
+/* Browser window filling the desktop */
+.browser { max-width: 800px; margin: 0 auto; height: calc(100vh - 16px); height: calc(100dvh - 16px); display: flex; flex-direction: column; }
+.browser > hr { margin: 2px 0; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 2px; padding-top: 2px; }
+.toolbar button { min-width: 56px; box-shadow: none; }
+.toolbar button:hover:not(:disabled) { box-shadow: var(--raised); }
+.toolbar button:active:not(:disabled) { box-shadow: var(--pressed); }
+.location { display: flex; align-items: center; gap: 6px; }
+.location input { flex: 1; min-width: 0; }
+.well { flex: 1; min-height: 0; display: flex; padding: 2px; box-shadow: var(--sunken); }
+.scroller { flex: 1; overflow: auto; background: var(--page-bg); }
+.statusbar { display: flex; gap: 2px; height: 20px; margin-top: 2px; }
+.statusbar > * { padding: 3px 4px; white-space: nowrap; overflow: hidden; box-shadow: inset 1px 1px var(--shadow), inset -1px -1px var(--hl); }
+.statusbar .msg { flex: 1; text-overflow: ellipsis; }
+.progress { width: 90px; padding: 3px; }
+.progress > span { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--navy) 0 8px, transparent 8px 10px); }
+
+/* Page: what the browser draws */
+.page {
+  max-width: var(--page-width, 760px); margin: 0 auto; padding: 8px;
+  display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 0 16px;
+  grid-template-areas: "banner banner" "nav main" "foot foot";
+  color: var(--page-fg); font: 16px/1.25 var(--font-page);
+}
+.page h1, .page h2, .page h3 { color: var(--heading); }
+.page h2 { font-size: 24px; line-height: 1.2; text-align: center; }
+.page h3 { font-size: 19px; line-height: 1.2; }
+.page > header { grid-area: banner; text-align: center; }
+.page > main { grid-area: main; min-width: 0; }
+.page > footer { grid-area: foot; text-align: center; }
+.side { grid-area: nav; align-self: start; padding: 8px; background: var(--lavender); }
+.side ul { margin: 4px 0 0; padding-left: 20px; }
+.page .wordart {
+  margin: 8px 0; font: 700 36px/1.1 "Arial Black", Arial, Helvetica, sans-serif;
+  background: var(--wordart); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(2px 2px 0 var(--wordart-shadow));
+}
+.small { font-size: 13px; }
+@media (max-width: 640px) {
+  .page { grid-template-columns: minmax(0, 1fr); grid-template-areas: "banner" "nav" "main" "foot"; }
+  .side { margin-bottom: 16px; }
+}
+
+.marquee-row { display: flex; align-items: center; gap: 6px; }
+.marquee { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; font-weight: 700; }
+.marquee > span { display: inline-block; padding-left: 100%; animation: marquee 10s linear infinite; }
+.marquee:is(:hover, :focus-within, .paused) > span { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-100%); } }
+.blink { animation: blink 1s steps(1) 4; }
+@keyframes blink { 50% { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee > span, .blink { animation: none; padding-left: 0; }
+}
+
+.badge-new { padding: 1px 3px; background: #cc0000; color: #ff0; font: bold 11px var(--font-ui); }
+.swatches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; font-size: 13px; }
+.swatches li { display: flex; align-items: center; gap: 6px; }
+.chip { flex: none; width: 32px; height: 32px; background: var(--c); box-shadow: var(--sunken); }
+
+.table-wrap { overflow-x: auto; }
+.retro-table { width: 100%; border: 1px solid; border-color: var(--hl) var(--shadow) var(--shadow) var(--hl); border-spacing: 2px; }
+.retro-table :is(td, th) { border: 1px solid; border-color: var(--shadow) var(--hl) var(--hl) var(--shadow); padding: 4px; text-align: left; vertical-align: top; }
+.retro-table th { background: var(--navy); color: #fff; text-align: center; }
+.retro-table.alt th { background: var(--lavender); color: #000; }
+
+.windows { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
+.windows > .window { flex: 1 1 280px; min-width: 0; }
+.windows > .window.inactive { flex: 1 1 180px; }
+.doc { margin: 0; padding: 6px; overflow: auto; background: #fff; box-shadow: var(--sunken); }
+
+.construction {
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin: 16px 0; padding: 8px;
+  border: 10px solid; border-image: repeating-linear-gradient(45deg, #ff0 0 10px, #000 10px 20px) 10;
+  background: #fff; color: #000; font-weight: 700; text-align: center;
+}
+
+.gb { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: 6px 8px; max-width: 460px; }
+.gb > label { font-weight: 700; text-align: right; }
+.gb > .buttons { grid-column: 2; justify-content: flex-start; }
+@media (max-width: 640px) {
+  .gb { grid-template-columns: minmax(0, 1fr); }
+  .gb > label { text-align: left; }
+  .gb > .buttons { grid-column: 1; }
+}
+.entries { font-family: var(--font-fun); }
+.entries li { margin-bottom: 8px; }
+
+.digits { display: inline-flex; gap: 1px; vertical-align: middle; }
+.digits > span { padding: 3px 5px; background: #000; color: #0f0; font: 13px var(--font-mono); box-shadow: var(--sunken); }
+.ring { list-style: none; display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 2px; margin: 4px 0 0; padding: 0;
+  border: 1px solid; border-color: var(--hl) var(--shadow) var(--shadow) var(--hl); }
+.ring li { padding: 4px 8px; border: 1px solid; border-color: var(--shadow) var(--hl) var(--hl) var(--shadow); }
+.badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 16px 0; }
+a.imglink { display: inline-block; border: 2px solid currentColor; line-height: 0; text-decoration: none; }
+.b88 { display: flex; flex-direction: column; justify-content: center; width: 88px; height: 31px; font: bold 9px/1.15 Verdana, Tahoma, sans-serif; text-align: center; }
+.b-best { background: #000; color: #0f0; }
+.b-pad { background: #fff; color: #000080; box-shadow: inset 0 0 0 1px #000; }
+.b-free { background: #000080; color: #ff0; }
+</style>
+</head>
+<body>
+<div class="window browser">
+  <div class="titlebar">
+    <span>Web Browser - [Welcome to My Homepage!]</span>
+    <span class="tb-btns" aria-hidden="true"><span class="tb-btn min"></span><span class="tb-btn max"></span><span class="tb-btn close"></span></span>
+  </div>
+  <div class="toolbar">
+    <button type="button" data-tip="Go back one page" onclick="history.back()">Back</button>
+    <button type="button" disabled>Forward</button>
+    <button type="button" data-tip="Reload this page" onclick="location.reload()">Reload</button>
+    <button type="button" data-tip="Go to the top" onclick="document.querySelector('.scroller').scrollTo(0, 0)">Home</button>
+  </div>
+  <hr>
+  <div class="location">
+    <label for="loc">Location:</label>
+    <input id="loc" value="http://www.homepages.example/~stupid/" readonly>
+  </div>
+  <hr>
+  <div class="well"><div class="scroller">
+    <div class="page">
+      <header id="top">
+        <h1 class="wordart">Welcome to My Homepage!</h1>
+        <p>Est. 1996 &middot; A live preview of the <b>Netscape 96</b> design system</p>
+        <hr class="rainbow">
+      </header>
+
+      <nav class="side" aria-label="Contents">
+        <b>Contents</b>
+        <ul>
+          <li><a href="#top">Home</a></li>
+          <li><a href="#colors">My Colors</a></li>
+          <li><a href="#fonts">Fonts</a></li>
+          <li><a href="#controls">Buttons &amp; Stuff</a></li>
+          <li><a href="#links">Cool Links</a></li>
+          <li><a href="#guestbook">Guestbook</a> <strong class="badge-new blink">NEW!</strong></li>
+        </ul>
+      </nav>
+
+      <main>
+        <p>Thanks for stopping by! Every color, font and control on this page comes straight from
+          <a href="DESIGN.md">DESIGN.md</a>. Try the controls, hover the links and watch the status bar,
+          and don't forget to sign my guestbook!</p>
+        <div class="marquee-row" id="marquee-row">
+          <div class="marquee" id="marquee" tabindex="0"><span>*** Under construction since 1996! *** Best viewed at 800x600! *** Sign my guestbook! ***</span></div>
+          <button type="button" id="pause" aria-pressed="false">Pause</button>
+        </div>
+
+        <hr>
+        <section id="colors">
+          <h2>My Colors</h2>
+          <h3>Chrome</h3>
+          <ul class="swatches">
+            <li><span class="chip" style="--c:#c0c0c0"></span><span>Silver<br><code>#C0C0C0</code></span></li>
+            <li><span class="chip" style="--c:#000080"></span><span>Navy<br><code>#000080</code></span></li>
+            <li><span class="chip" style="--c:#1084d0"></span><span>Title end<br><code>#1084D0</code></span></li>
+            <li><span class="chip" style="--c:#008080"></span><span>Desktop teal<br><code>#008080</code></span></li>
+            <li><span class="chip" style="--c:#ffff00"></span><span>Highlight<br><code>#FFFF00</code></span></li>
+            <li><span class="chip" style="--c:#ffffe1"></span><span>Tooltip<br><code>#FFFFE1</code></span></li>
+          </ul>
+          <h3>Bevel Quartet</h3>
+          <ul class="swatches">
+            <li><span class="chip" style="--c:#ffffff"></span><span>Highlight<br><code>#FFFFFF</code></span></li>
+            <li><span class="chip" style="--c:#dfdfdf"></span><span>Light<br><code>#DFDFDF</code></span></li>
+            <li><span class="chip" style="--c:#808080"></span><span>Shadow<br><code>#808080</code></span></li>
+            <li><span class="chip" style="--c:#0a0a0a"></span><span>Dark<br><code>#0A0A0A</code></span></li>
+          </ul>
+          <h3>Links</h3>
+          <ul class="swatches">
+            <li><span class="chip" style="--c:#0000ee"></span><span>Link<br><code>#0000EE</code></span></li>
+            <li><span class="chip" style="--c:#551a8b"></span><span>Visited<br><code>#551A8B</code></span></li>
+            <li><span class="chip" style="--c:#ff0000"></span><span>Active<br><code>#FF0000</code></span></li>
+          </ul>
+          <h3>Web-Safe Accents</h3>
+          <ul class="swatches">
+            <li><span class="chip" style="--c:#cc0000"></span><span>Hot<br><code>#CC0000</code></span></li>
+            <li><span class="chip" style="--c:#00ff00"></span><span>Lime<br><code>#00FF00</code></span></li>
+            <li><span class="chip" style="--c:#00ffff"></span><span>Aqua<br><code>#00FFFF</code></span></li>
+            <li><span class="chip" style="--c:#ff00ff"></span><span>Fuchsia<br><code>#FF00FF</code></span></li>
+            <li><span class="chip" style="--c:#990000"></span><span>Maroon<br><code>#990000</code></span></li>
+            <li><span class="chip" style="--c:#999900"></span><span>Olive<br><code>#999900</code></span></li>
+            <li><span class="chip" style="--c:#009900"></span><span>Green<br><code>#009900</code></span></li>
+            <li><span class="chip" style="--c:#990099"></span><span>Purple<br><code>#990099</code></span></li>
+            <li><span class="chip" style="--c:#ccccff"></span><span>Lavender<br><code>#CCCCFF</code></span></li>
+          </ul>
+        </section>
+
+        <hr>
+        <section id="fonts">
+          <h2>Fonts</h2>
+          <div class="table-wrap">
+            <table class="retro-table">
+              <thead><tr><th scope="col">Role</th><th scope="col">Sample</th></tr></thead>
+              <tbody>
+                <tr><td>h1 &middot; 32px</td><td><span style="font:700 32px/1.15 var(--font-page)">My Homepage</span></td></tr>
+                <tr><td>h2 &middot; 24px</td><td><span style="font:700 24px/1.2 var(--font-page)">About Me</span></td></tr>
+                <tr><td>h3 &middot; 19px</td><td><span style="font:700 19px/1.2 var(--font-page)">My Hobbies</span></td></tr>
+                <tr><td>banner &middot; 36px</td><td><span style="font:700 36px/1.1 'Arial Black', Arial, sans-serif">Cool!</span></td></tr>
+                <tr><td>body &middot; 16px</td><td>This is where I put all my stuff.</td></tr>
+                <tr><td>body-sm &middot; 13px</td><td class="small">Last updated: 10/10/96</td></tr>
+                <tr><td>ui &middot; 11px</td><td><span style="font:11px var(--font-ui)">Document: Done</span></td></tr>
+                <tr><td>ui-bold &middot; 11px</td><td><span style="font:bold 11px var(--font-ui)">Display Properties</span></td></tr>
+                <tr><td>mono &middot; 13px</td><td><code>C:\WINDOWS&gt; dir /w</code></td></tr>
+                <tr><td>fun &middot; 16px</td><td><span style="font-family:var(--font-fun)">Sign my guestbook!!</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <hr>
+        <section id="controls">
+          <h2>Buttons &amp; Stuff</h2>
+          <div class="windows">
+            <div class="window" role="group" aria-labelledby="dlg-title">
+              <div class="titlebar">
+                <span id="dlg-title">Display Properties</span>
+                <span class="tb-btns" aria-hidden="true"><span class="tb-btn close"></span></span>
+              </div>
+              <div class="window-body">
+                <fieldset>
+                  <legend>Page Background</legend>
+                  <label class="opt"><input type="radio" name="theme" value="" checked> Auto (follows system)</label>
+                  <label class="opt"><input type="radio" name="theme" value="gray"> Default gray</label>
+                  <label class="opt"><input type="radio" name="theme" value="white"> White</label>
+                  <label class="opt"><input type="radio" name="theme" value="night"> Night</label>
+                </fieldset>
+                <fieldset>
+                  <legend>Options</legend>
+                  <label class="opt"><input type="checkbox" id="show-marquee" checked> Show marquee</label>
+                  <label class="opt"><input type="checkbox"> Play background MIDI</label>
+                </fieldset>
+                <div class="field">
+                  <label for="width">Screen size:</label>
+                  <span class="select"><select id="width">
+                    <option value="760px" selected>800 x 600</option>
+                    <option value="600px">640 x 480</option>
+                  </select></span>
+                </div>
+                <div class="field">
+                  <label for="nick">Your name:</label>
+                  <input id="nick" placeholder="Web Surfer">
+                </div>
+                <div class="field">
+                  <label for="notes">Notes:</label>
+                  <textarea id="notes" rows="4">Things to add to my page:
+- spinning globe GIF
+- more MIDI files
+- a frames version
+- counter that goes up for real
+- link to my friend's page
+- an "e-mail me" mailbox animation
+- under construction sign (done!)</textarea>
+                </div>
+                <div class="buttons">
+                  <button type="button" class="default">OK</button>
+                  <button type="button">Cancel</button>
+                  <button type="button" disabled>Apply</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="window inactive" role="group" aria-labelledby="ed-title">
+              <div class="titlebar">
+                <span id="ed-title">Untitled - Text Editor</span>
+                <span class="tb-btns" aria-hidden="true"><span class="tb-btn min"></span><span class="tb-btn max"></span><span class="tb-btn close"></span></span>
+              </div>
+              <pre class="doc" aria-label="ASCII art of a computer">  _______
+ |.-----.|
+ ||x . x||
+ ||_.-._||
+ `--)-(--`
+__[=== o]___
+|:::::::::::|\
+`-=========-`()</pre>
+            </div>
+          </div>
+        </section>
+
+        <hr>
+        <section id="links">
+          <h2>Cool Links</h2>
+          <div class="table-wrap">
+            <table class="retro-table alt">
+              <thead><tr><th scope="col">Site</th><th scope="col">What's There</th></tr></thead>
+              <tbody>
+                <tr><td><a href="#gallery">The Pixel Art Gallery</a></td><td>Hundreds of 16x16 icons. Great for your page!</td></tr>
+                <tr><td><a href="#tips">HTML 3.2 Tips</a></td><td>Learn tables, frames and the font tag.</td></tr>
+                <tr><td><a href="#midi">MIDI Music Archive</a></td><td>Background music for every mood.</td></tr>
+                <tr><td><a href="#clipart">Free Clip-Art Barn</a></td><td>Spinning globes, mailboxes and more.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="construction">
+            <svg width="32" height="32" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-label="Pixel caution sign">
+              <path fill="#000" d="M7 1h2v2h1v3h1v3h1v3h1v3H2v-3h1V9h1V6h1V3h1V1z"/>
+              <path fill="#ff0" d="M6 3h3v3h1v3h1v3h1v2H3v-2h1V9h1V6h1z"/>
+              <path fill="#000" d="M7 5h1v5H7zM7 11h1v2H7z"/>
+            </svg>
+            <span>This page is under construction! Check back soon!</span>
+          </div>
+        </section>
+
+        <hr>
+        <section id="guestbook">
+          <h2>Sign My Guestbook!</h2>
+          <form id="gb" class="gb">
+            <label for="gb-who">Name:</label><input id="gb-who" name="who" required maxlength="40">
+            <label for="gb-email">E-mail:</label><input id="gb-email" name="email" type="email">
+            <label for="gb-url">Homepage URL:</label><input id="gb-url" name="url" type="url" placeholder="http://">
+            <label for="gb-msg">Comments:</label><textarea id="gb-msg" name="msg" rows="3" required maxlength="300"></textarea>
+            <div class="buttons"><button type="submit">Submit</button><button type="reset">Reset</button></div>
+          </form>
+          <h3>Recent Entries</h3>
+          <ul class="entries" id="entries">
+            <li><b>CoolDude97</b> wrote: <q>Awesome page!! Love the colors. Check out my page sometime!</q></li>
+            <li><b>WebMistress</b> wrote: <q>Found you on the web ring. Nice bevels!</q></li>
+          </ul>
+        </section>
+      </main>
+
+      <footer>
+        <hr>
+        <p class="small">You are visitor number
+          <span class="digits" role="img" aria-label="0001337"><span>0</span><span>0</span><span>0</span><span>1</span><span>3</span><span>3</span><span>7</span></span>
+        </p>
+        <nav aria-label="Web ring">
+          <b>The Ilovemyjob Web Ring</b><br>
+          <ul class="ring">
+            <li><a href="#top">&lt;&lt; Prev</a></li>
+            <li><a href="#top">Random</a></li>
+            <li><a href="#top">Next &gt;&gt;</a></li>
+            <li><a href="#top">List Sites</a></li>
+          </ul>
+        </nav>
+        <div class="badges">
+          <a class="imglink" href="#top"><span class="b88 b-best"><span>Best viewed at</span><span>800 x 600</span></span></a>
+          <a class="imglink" href="#top"><span class="b88 b-pad"><span>Made with</span><span>Notepad</span></span></a>
+          <a class="imglink" href="#top"><span class="b88 b-free"><span>Get a FREE</span><span>homepage!</span></span></a>
+        </div>
+        <p class="small">Last updated: 10/10/96 &middot; <a href="mailto:webmaster@example.com">E-mail the webmaster</a></p>
+      </footer>
+    </div>
+  </div></div>
+  <div class="statusbar">
+    <span class="msg" id="status">Document: Done</span>
+    <span class="progress" aria-hidden="true"><span></span></span>
+    <span>Local file</span>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+
+// Status bar shows the link under the pointer or keyboard focus, like 1996
+const status = $('status');
+const showHref = e => { const a = e.target.closest('a[href]'); status.textContent = a ? a.href : 'Document: Done'; };
+document.addEventListener('mouseover', showHref);
+document.addEventListener('focusin', showHref);
+
+$('pause').addEventListener('click', e => {
+  const paused = $('marquee').classList.toggle('paused');
+  e.currentTarget.setAttribute('aria-pressed', paused);
+});
+$('show-marquee').addEventListener('change', e => { $('marquee-row').hidden = !e.target.checked; });
+$('width').addEventListener('change', e => root.style.setProperty('--page-width', e.target.value));
+document.querySelectorAll('input[name="theme"]').forEach(r => r.addEventListener('change', () => {
+  if (r.value) root.dataset.theme = r.value; else delete root.dataset.theme;
+}));
+
+// ponytail: entries live only in this tab, add a backend when the guestbook is real
+$('gb').addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target, li = document.createElement('li');
+  li.append(Object.assign(document.createElement('b'), { textContent: f.who.value }), ' wrote: ',
+            Object.assign(document.createElement('q'), { textContent: f.msg.value }));
+  $('entries').prepend(li);
+  f.reset();
+});
+</script>
+</body>
+</html>
