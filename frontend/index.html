@@ -369,11 +369,12 @@ function index(side) {
 
 // RAG is a bonus: if embedding fails, translate with no examples.
 async function retrieve(text, side) {
+  const docs = index(side);
+  docs.catch(() => { if (vecs[side] === docs) delete vecs[side]; }); // retry next time, e.g. after `ollama pull nomic-embed-text`
   try {
-    const [docs, [q]] = await Promise.all([index(side), embed(['search_query: ' + text])]);
-    return topK(q, docs, 3).map(i => corpus[i]);
+    const [d, [q]] = await Promise.all([docs, embed(['search_query: ' + text])]);
+    return topK(q, d, 3).map(i => corpus[i]);
   } catch {
-    delete vecs[side]; // retry next time, e.g. after `ollama pull nomic-embed-text`
     return [];
   }
 }
@@ -397,8 +398,12 @@ function showStats(text, reverse) {
 
 async function translate(reverse = false) {
   const text = $('input-text').value.trim();
-  if (!text) return;
+  if (!text) { $('input-text').value = ''; $('form').reportValidity(); return; } // spaces pass `required`
   const out = $('output');
+  $('sources').replaceChildren(); // a failed run must not leave the last run's sources and stats behind
+  $('meter').style.width = '0';
+  $('meter-label').textContent = 'Synergy Meter: 0%';
+  $('engage').textContent = '';
   setBusy(true);
   out.setAttribute('aria-busy', 'true'); // screen readers hear the finished post, not every token
   $('copy').disabled = true;
@@ -422,9 +427,9 @@ async function translate(reverse = false) {
     let buf = '';
     for (;;) {
       const { value, done } = await reader.read();
-      if (done) break;
+      if (done && !buf.trim()) break;
       let msgs;
-      [msgs, buf] = splitNdjson(buf + value);
+      [msgs, buf] = splitNdjson(buf + (done ? '\n' : value)); // last line may lack a newline
       for (const m of msgs) {
         if (m.error) throw new Error('Ollama said: ' + m.error);
         if (!started) { started = true; clearInterval(ticker); out.textContent = ''; }
