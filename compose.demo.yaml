@@ -1,0 +1,12 @@
+# Hackathon demo: NVIDIA GPU + free public URL (Cloudflare quick tunnel, no account).
+#   docker compose -f compose.yaml -f compose.demo.yaml up -d
+#   docker compose -f compose.yaml -f compose.demo.yaml logs tunnel   # find https://*.trycloudflare.com
+# Share <that URL>/frontend/. URL dies when the laptop sleeps or the tunnel stops.
+services:
+  ollama:
+    gpus: all
+
+  tunnel:
+    image: cloudflare/cloudflared:2025.8.1
+    depends_on: [web]
+    command: tunnel --no-autoupdate --url http://web:80
