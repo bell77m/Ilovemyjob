@@ -4,6 +4,7 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — Review fixes: "Agree?" anywhere on the last line counts (no double "Agree?" after emoji/hashtags); preamble strip only drops a whole "Here is ...:" line (keeps "Here's what I learned: ..." openers); `#output` gets `aria-busy` while streaming. JS 27/27, Python 26/26.
 - 2026-10-10 — `frontend/index.html` wired: streaming translate (F1/F2), Win95 error `<dialog>` (F5), "Agree?" rule (F12), copy button, loading messages, remembered cringe slider (F3/F4/F6), browser RAG + sources (F13), Decrypt Recruiter (F7), Synergy Meter + fake engagement (F8/F9). Checked live in Chrome: stream, sources, reverse, Ollama-down dialog, 375px no scroll, only localhost requests.
 - 2026-10-10 — `frontend/lib.js`: `cosine`, `topK`, `synergyScore` (24 checks in `tests.js`).
 - 2026-10-10 — `prompts.json` `system` says few-shot pairs are examples only (3B model was rewriting all 3); `enforceAgree`/`enforce_agree` strip echoed `Human:`/`LinkedIn:` labels and "Here is the post:" preambles.
@@ -37,6 +38,7 @@ Update this file when work lands. Newest first.
 - [ ] MCP error polish (review minors): timeout says "unemployed" even when Ollama is just slow; `IncompleteRead`/bad JSON skip the vibes-only fallback; raw `{"error":...}` JSON in messages; `decrypt_recruiter` can return "".
 - [ ] `REQUIREMENTS.md` §7 says corpus is embedded "at startup"; code embeds on first call (on purpose). Update spec line.
 - [ ] Setup docs: `pip install "mcp>=2"` (1.x users get ImportError).
-- [ ] Model sometimes ends "Agree? 🤔", then F12 appends a second "Agree?".
+- [ ] Page polish (review minors): clear old sources/meter/engagement when a run fails; status-bar "AI" spam glues onto messages ("vibes onlyAIAI"), maybe give it its own span; parse leftover `buf` after stream ends; whitespace-only input gives no feedback; failed query embed also throws away good corpus vectors.
+- [ ] Register MCP in Claude Code and run REQUIREMENTS §10 MCP boxes; browser check with `nomic-embed-text` removed ("Sources: vibes only").
 - [ ] Team grows cringe.json to 30–50 pairs (commuting, kids, pets, weather, gym, coffee...).
 - [ ] Replace sample address `http://www.homepages.example/~stupid/` in `preview.html`.

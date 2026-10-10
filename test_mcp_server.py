@@ -71,6 +71,19 @@ def test_enforce_agree_drops_echoed_human_line_and_label():
     assert m.enforce_agree("Human: I forgot my umbrella.\nLinkedIn: Soaked. Agree?") == "Soaked. Agree?"
 
 
+def test_enforce_agree_keeps_agree_followed_by_emoji_or_hashtags():
+    assert m.enforce_agree("Grateful. Agree? 🤪 #blessed") == "Grateful. Agree? 🤪 #blessed"
+
+
+def test_enforce_agree_appends_when_agree_only_in_earlier_line():
+    assert m.enforce_agree("Agree? Maybe.\nGrateful.") == "Agree? Maybe.\nGrateful.\n\nAgree?"
+
+
+def test_enforce_agree_keeps_heres_what_i_learned_opener():
+    assert m.enforce_agree("Here's what I learned from getting fired: nothing. Agree?") == \
+        "Here's what I learned from getting fired: nothing. Agree?"
+
+
 def test_enforce_agree_drops_here_is_preamble():
     assert m.enforce_agree("Here is the rewritten LinkedIn post:\n\nGrateful. Agree?") == "Grateful. Agree?"
 

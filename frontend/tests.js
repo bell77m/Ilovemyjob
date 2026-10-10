@@ -22,6 +22,12 @@ check('enforceAgree on empty output is just Agree?', enforceAgree('') === 'Agree
 check('enforceAgree drops an echoed LinkedIn: label', enforceAgree('LinkedIn: Grateful. Agree?') === 'Grateful. Agree?');
 check('enforceAgree drops an echoed Human line and label',
   enforceAgree('Human: I forgot my umbrella.\nLinkedIn: Soaked. Agree?') === 'Soaked. Agree?');
+check('enforceAgree keeps Agree? followed by emoji or hashtags',
+  enforceAgree('Grateful. Agree? 🤪 #blessed') === 'Grateful. Agree? 🤪 #blessed');
+check('enforceAgree appends when Agree? is only in an earlier line',
+  enforceAgree('Agree? Maybe.\nGrateful.') === 'Agree? Maybe.\nGrateful.\n\nAgree?');
+check('enforceAgree keeps a "Here\'s what I learned:" opener',
+  enforceAgree("Here's what I learned from getting fired: nothing. Agree?") === "Here's what I learned from getting fired: nothing. Agree?");
 check('enforceAgree drops a "Here is the post:" preamble',
   enforceAgree('Here is the rewritten LinkedIn post:\n\nGrateful. Agree?') === 'Grateful. Agree?');
 

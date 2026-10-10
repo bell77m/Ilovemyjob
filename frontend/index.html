@@ -400,6 +400,7 @@ async function translate(reverse = false) {
   if (!text) return;
   const out = $('output');
   setBusy(true);
+  out.setAttribute('aria-busy', 'true'); // screen readers hear the finished post, not every token
   $('copy').disabled = true;
   let started = false, i = 0;
   const tick = () => {
@@ -441,6 +442,7 @@ async function translate(reverse = false) {
     showError(e.message);
   } finally {
     clearInterval(ticker);
+    out.removeAttribute('aria-busy');
     setBusy(false);
   }
 }

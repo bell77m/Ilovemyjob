@@ -14,10 +14,11 @@ function buildPrompt(text, cringe, examples, reverse = false) {
 // Small models echo the few-shot format ("Human: ...", "LinkedIn:") or chat ("Here is the post:"); drop that first.
 function enforceAgree(text) {
   const t = text.trim()
-    .replace(/^here(?: is|'s)[^\n]*:\s*/i, '')
+    .replace(/^here(?: is|'s)[^\n]*:[ \t]*\n\s*/i, '')
     .replace(/^human:[^\n]*\n+/i, '')
     .replace(/^linkedin(?: post)?:\s*/i, '');
-  if (/agree\?$/i.test(t)) return t;
+  // Model often puts emoji or hashtags after "Agree?"; any "Agree?" on the last line counts.
+  if (/agree\?/i.test(t.split('\n').pop())) return t;
   return t ? t + '\n\nAgree?' : 'Agree?';
 }
 

@@ -44,10 +44,11 @@ def synergy(text, words):
 
 def enforce_agree(text):
     # Small models echo the few-shot format ("Human: ...", "LinkedIn:") or chat ("Here is the post:"); drop that first.
-    t = re.sub(r"^here(?: is|'s)[^\n]*:\s*", "", text.strip(), flags=re.I)
+    t = re.sub(r"^here(?: is|'s)[^\n]*:[ \t]*\n\s*", "", text.strip(), flags=re.I)
     t = re.sub(r"^human:[^\n]*\n+", "", t, flags=re.I)
     t = re.sub(r"^linkedin(?: post)?:\s*", "", t, flags=re.I)
-    if t.lower().endswith("agree?"):
+    # Model often puts emoji or hashtags after "Agree?"; any "Agree?" on the last line counts.
+    if "agree?" in t.split("\n")[-1].lower():
         return t
     return t + "\n\nAgree?" if t else "Agree?"
 
