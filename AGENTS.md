@@ -3,11 +3,11 @@
 Shared instructions for every coding agent on this project (Claude Code loads it via `CLAUDE.md`). Keep it short and factual.
 
 ## Overview
-LinkedIn Translator: `frontend/index.html` (vanilla JS, no build) calls local Ollama to rewrite sentences as LinkedIn posts. `frontend/lib.js` holds pure logic; `mcp_server.py` exposes the same tools over MCP stdio. `prompts.json` and `cringe.json` (repo root) are shared by both. Spec: `REQUIREMENTS.md`.
+LinkedIn Translator: `frontend/` is a TanStack Start app (React, Router, Query, Form). Its server functions (`src/server/`) call local Ollama, run RAG and stream LinkedIn posts to the page; pure logic is in `src/lib/cringe.ts`. `mcp_server.py` exposes the same tools over MCP stdio (Python twin of `cringe.ts`). `prompts.json` and `cringe.json` (repo root) are shared by both. Spec: `REQUIREMENTS.md`.
 
 ## Commands
-- Run app: `docker compose up -d`, or `ollama serve` + `python -m http.server 8000` from the repo root; open http://localhost:8000/frontend/
-- JS tests: `cd frontend && node -e "const r=f=>require('fs').readFileSync(f,'utf8');eval(r('lib.js')+';'+r('tests.js'))"` (or open `/frontend/tests.html`)
+- Run app: `docker compose up -d --build`, open http://localhost:8000. Or `ollama serve` + `cd frontend && npm install && npm run dev`, open http://localhost:3000
+- JS tests: `cd frontend && npm test` (Vitest)
 - Python tests: `python -m pip install "mcp>=2" && python test_mcp_server.py`
 - MCP: `claude mcp add ilovemyjob -- python <abs path>/mcp_server.py`
 

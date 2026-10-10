@@ -4,6 +4,7 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `frontend/` rebuilt on TanStack Start + Router + Query + Form (React 19, TS): `/` and `/decrypt`, server functions call Ollama and run RAG (browser never talks to Ollama), streamed events, all jokes ported (ads, AI spam, jump scare). Vitest 38/38. Docker `web` builds `frontend/Dockerfile` (62 MB), tunnel points at the app, `nginx.conf` and vanilla page removed. Checked live: stream, sources, decrypt, empty input, Ollama down, server down, 375px, only own-origin requests.
 - 2026-10-10 — `docs/superpowers/specs/2026-10-10-tanstack-frontend-design.md`: design for rebuilding `frontend/` on TanStack Start + Router + Query + Form (React, full parity incl. jokes, Ollama called server-side).
 - 2026-10-10 — `nginx.conf`: dotfiles return 404. Before, the public tunnel served `.git/`, `.claude/` and `.remember/` (whole repo is mounted). Checked locally and through the tunnel URL.
 - 2026-10-10 — `cringe.json`: grown to 40 hand-written pairs (commuting, pets, kids, weather, office tech, career setbacks); live retrieval picks on-topic examples. `preview.html` location bar shows `http://localhost:8000/preview.html`.
@@ -40,4 +41,6 @@ Update this file when work lands. Newest first.
 
 ## Next
 
+- [ ] Restart the running Docker stack on the new `web` image: `docker compose -f compose.yaml -f compose.demo.yaml up -d --build` (tunnel URL changes).
+- [ ] RAG: drop examples below a similarity cutoff (3rd match for "I got fired." is "I burnt my toast."; model sometimes copies it).
 - [ ] Tunnel URL changes on every restart; for a permanent link host on HF Spaces (Docker, CPU, slow).

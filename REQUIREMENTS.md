@@ -70,21 +70,21 @@ Rule: maximum dumb, still demo-proof. Every stupid choice must still work on sta
 
 | Layer | Choice | Why it is stupid | Why it still works |
 |-------|--------|------------------|--------------------|
-| Frontend | **One `index.html`**, inline CSS + vanilla JS | No React, no build, no `node_modules`. Like 1996. | Opens anywhere. Nothing to break. |
-| Layout | `<table>` layout, `<marquee>`, `<blink>`-style CSS | Banned since 2004. | Browsers still render it. Matches `DESIGN.md`. |
+| Frontend | **TanStack Start** app in `frontend/`: React 19, TanStack Router (`/`, `/decrypt`), Query, Form, TypeScript | A 2026 meta-framework to render a 1996 homepage. | The team knows React; components are easier to extend than one big HTML file. |
+| Layout | CSS grid/flex and CSS marquee per `DESIGN.md` (no real `<table>`/`<marquee>`) | Looks banned since 2004. | Same look, accessible markup. |
 | Styling | `DESIGN.md` Netscape 96 tokens, copied from `preview.html` | A 2026 AI app styled like Windows 95. | Starter CSS already exists. |
 | LLM runtime | **Ollama** on `localhost:11434` | Your laptop fan is the backend. | One install, one command, offline. |
 | Model | `llama3.2:3b` (default). `qwen2.5:0.5b` for potato laptops. | A billion parameters to write "Agree?". | Small, fast on CPU, good enough at cringe. |
-| Backend | **None.** Browser calls Ollama HTTP API directly with `fetch`. | Zero-tier architecture. | Fewer moving parts, nothing to deploy. |
-| Server | `python -m http.server 8000` | Python used only to serve one file. | Already installed on most laptops. |
+| Backend | **Start server functions.** They call Ollama, run RAG and stream tokens to the page. Browser never talks to Ollama. | A full-stack framework so a laptop can talk to itself. | No CORS setup; Ollama stays private, even behind the demo tunnel. |
+| Server | `node .output/server/index.mjs` (Nitro build), or `npm run dev` | Node serves a page about unemployment. | One command; Docker image is 62 MB. |
 | Database | **None.** Cringe level saved in `localStorage`. | Your browser is the DB. | Only per-user setting needed. |
 | RAG corpus | `cringe.json`, ~40 hand-written human → LinkedIn pairs | "Knowledge base" is one JSON file the team wrote at 3 a.m. | Small enough to embed on every page load. |
 | Embeddings | Ollama `nomic-embed-text` | A second neural network just to find similar humblebrags. | Same Ollama, one more `pull`, offline. |
 | Vector DB | **A JavaScript array in RAM.** Cosine similarity in a 5-line `for` loop. | Vector database: Ctrl+F with math. | 40 vectors × 768 dims searches in under 1 ms. |
 | MCP server | `mcp_server.py`, one file, official `mcp` Python SDK 2.x (`MCPServer`, was `FastMCP` in 1.x), stdio | Python returns, now as a "microservice". | About 60 lines. No ports, no auth needed. |
-| Shared config | `prompts.json`: system prompts + model names, read by `index.html` and `mcp_server.py` | Two apps share a config file like it's 1996. | One place to tune cringe; web and MCP give the same output. |
-| Deploy | Run from laptop at the table. Optional: `index.html` on a USB stick labeled "FLOPPY". | No cloud. | Cannot go down because of venue Wi-Fi. |
-| Tests | One `tests.html` with `console.assert` for Synergy Meter, "Agree?" enforcer and cosine top-k. One `test_mcp_server.py` with plain `assert` for the Python top-k. | No test framework. | Follows `.agents/rules/testing.md` spirit: smallest check that fails if logic breaks. |
+| Shared config | `prompts.json`: system prompts + model names, read by the Start server and `mcp_server.py` | Two apps share a config file like it's 1996. | One place to tune cringe; web and MCP give the same output. |
+| Deploy | Run from laptop at the table (`docker compose up -d --build`). Optional public link: `compose.demo.yaml` (Cloudflare tunnel). | No cloud. | Cannot go down because of venue Wi-Fi. |
+| Tests | Vitest in `frontend/` (`npm test`): pure logic + server engine with a fake Ollama. `test_mcp_server.py` with plain `assert` for the MCP server. | Tests for a joke. | One behavior per test, no network (`.agents/rules/testing.md`). |
 
 ### LLM call
 
@@ -138,7 +138,7 @@ Goal: the model copies real cringe patterns instead of inventing weak ones. A ti
 - Write or paraphrase posts yourselves. Don't scrape LinkedIn: it breaks their terms, and real posts contain real people's names.
 - The four rows in §4 go in first.
 
-### Flow (runs in the browser, no backend)
+### Flow (runs in the Start server)
 
 1. **On page load:** send all `human` texts in one call to `POST /api/embed` (`{"model": "nomic-embed-text", "input": [...]}`). Keep the returned `embeddings` array in memory. Status bar shows "Indexing thought leadership... 40/40".
 2. **On translate:** embed the user's text, compute cosine similarity against every stored vector, take the top 3.
@@ -192,24 +192,21 @@ Smoke test: ask the agent "Use linkedinify on: I fixed a typo." Expect a post ab
 # 1. Install Ollama from https://ollama.com, then:
 ollama pull llama3.2:3b
 ollama pull nomic-embed-text
-# 2. Allow the page to call Ollama (CORS), then start it:
-$env:OLLAMA_ORIGINS = "http://localhost:8000"
+# 2. Start it:
 ollama serve
-# 3. In the project folder:
-python -m http.server 8000
-# 4. Open http://localhost:8000/frontend/
+# 3. In the project folder (Node 24):
+cd frontend; npm install; npm run dev
+# 4. Open http://localhost:3000
 # 5. Optional, for MCP:
 pip install "mcp>=2"
 claude mcp add ilovemyjob -- python mcp_server.py
 ```
 
-Opening `index.html` via `file://` fails CORS unless `OLLAMA_ORIGINS=*`. Use the Python server.
-
-**Or with Docker** (replaces steps 1–3): `docker compose up -d`, wait for the `pull` container to exit, open http://localhost:8000/frontend/. `compose.yaml` runs Ollama (CORS preset), pulls both models into a volume once, and serves the folder with nginx. Stop host Ollama first (port 11434). Docker Ollama is CPU-only on Windows/macOS, so for the live demo prefer native Ollama if the laptop has a GPU.
+**Or with Docker** (replaces steps 1–3): `docker compose up -d --build`, wait for the `pull` container to exit, then open http://localhost:8000. `compose.yaml` runs Ollama, pulls both models into a volume once, and runs the TanStack app (built from `frontend/Dockerfile`). Stop host Ollama first (port 11434). Docker Ollama is CPU-only on Windows/macOS, so for the live demo prefer native Ollama if the laptop has a GPU.
 
 ## 9. Non-functional requirements
 
-- **Offline.** Zero external requests at runtime. No CDN, fonts are system fonts per `DESIGN.md`.
+- **Offline.** Zero external requests at runtime. No CDN, fonts are system fonts per `DESIGN.md`. `npm install` / image build need internet once, before the demo.
 - **Speed.** First token under 3 s on a normal laptop with `llama3.2:3b`. Full post under 20 s.
 - **Input limit.** Max 500 characters, enforced by `maxlength`. Stops someone pasting a novel during demo.
 - **Safety.** Output and retrieved sources are inserted with `textContent`, never `innerHTML`. Model output is untrusted.
