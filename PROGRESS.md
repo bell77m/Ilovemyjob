@@ -4,6 +4,8 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `mcp_server.py`: `linkedinify` and `decrypt_recruiter` MCP tools (Ollama via `urllib`, lazy corpus embeddings, top-3 RAG examples, falls back to no examples if embedding fails); errors reach the agent as `ToolError` text. 20 checks in `test_mcp_server.py`; live stdio smoke test passed (Ollama up, down, back up, server stays alive).
+- 2026-10-10 — `prompts.json`: `reverseSystem` now says the few-shot pairs are examples only (3B model was translating them too).
 - 2026-10-10 — `mcp_server.py`: MCP server (mcp 2.x `MCPServer`, stdio) with `synergy_score` tool and Python twins of `lib.js` helpers; `test_mcp_server.py` (11 checks, `python test_mcp_server.py`).
 - 2026-10-10 — `cringe.json`: starter RAG corpus, 12 hand-written human → LinkedIn pairs (§4 rows first).
 - 2026-10-10 — `prompts.json` (shared models + prompts + buzzwords), `frontend/lib.js` (`buildPrompt`, `enforceAgree`, `splitNdjson`), `frontend/tests.js` + `tests.html` (11 checks, Node or browser).
@@ -27,6 +29,8 @@ Update this file when work lands. Newest first.
 
 ## Next
 
+- [ ] Register the MCP server in Claude Code: `claude mcp add ilovemyjob -- python "<repo>\mcp_server.py"`, then try `/mcp` and "Use linkedinify on: I fixed a typo."
+- [ ] `llama3.2:3b` sometimes prefixes `linkedinify` output with "LinkedIn:" (copies the few-shot format); strip it in `enforce_agree`/`enforceAgree` if it shows up in the demo.
 - [ ] Execute the plan in `docs/superpowers/plans/2026-10-10-linkedin-translator.md`, task by task.
 - [ ] Fill `AGENTS.md` Overview and Commands once the app has a stack.
 - [ ] Build `index.html` LinkedIn Translator MVP (F1–F5 in `REQUIREMENTS.md`).

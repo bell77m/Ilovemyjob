@@ -1,8 +1,26 @@
 """Plain-assert checks for mcp_server.py. Run: python test_mcp_server.py"""
+import asyncio
+import io
+import urllib.error
+
 import mcp_server as m
 
 W = ["synergy", "journey", "thought leader", "🚀"]
 FIRED = {"human": "I got fired.", "linkedin": "Thrilled."}
+REAL_OLLAMA = m.ollama
+
+
+def fake_ollama(path, body):
+    """Corpus vectors [1,0],[1,1],[1,2]...; query [1,0]. Records the last generate body."""
+    if path == "/api/embed":
+        return {"embeddings": [[1.0, float(i)] for i in range(len(body["input"]))]}
+    fake_ollama.last = body
+    return {"response": "  Grateful for this journey. #Growth  "}
+
+
+def use_fake():
+    m.ollama = fake_ollama
+    m._vecs.clear()
 
 
 def test_corpus_starts_with_spec_rows():
@@ -55,6 +73,96 @@ def test_build_prompt_matches_lib_js():
 def test_top_k_best_first_and_zero_safe():
     assert m.top_k([1, 0], [[0, 1], [1, 0], [1, 1]], 2) == [1, 2]
     assert m.cosine([0, 0], [1, 1]) == 0
+
+
+def test_linkedinify_enforces_agree_and_clamps_cringe():
+    use_fake()
+    assert m.linkedinify("I got fired.", 99).endswith("Agree?")
+    assert "Cringe level: 10/10" in fake_ollama.last["prompt"]
+    m.linkedinify("I got fired.", -5)
+    assert "Cringe level: 1/10" in fake_ollama.last["prompt"]
+
+
+def test_linkedinify_adds_three_examples():
+    use_fake()
+    m.linkedinify("I got fired.")
+    assert fake_ollama.last["prompt"].count("Human: ") == 3
+    assert fake_ollama.last["system"] == m.CFG["system"]
+
+
+def test_linkedinify_cuts_text_to_500():
+    use_fake()
+    m.linkedinify("x" * 600)
+    assert "x" * 500 in fake_ollama.last["prompt"] and "x" * 501 not in fake_ollama.last["prompt"]
+
+
+def test_linkedinify_rejects_empty():
+    use_fake()
+    try:
+        m.linkedinify("  ")
+        assert False, "expected ValueError"
+    except ValueError:
+        pass
+
+
+def test_decrypt_recruiter_uses_reverse_prompt_without_agree():
+    use_fake()
+    out = m.decrypt_recruiter("Thrilled to announce my next chapter!")
+    assert not out.endswith("Agree?")
+    assert fake_ollama.last["system"] == m.CFG["reverseSystem"]
+    assert fake_ollama.last["prompt"].endswith("LinkedIn post: Thrilled to announce my next chapter!")
+
+
+def test_embed_failure_still_translates():
+    def no_embed(path, body):
+        if path == "/api/embed":
+            raise RuntimeError("Ollama said: model not found")
+        return fake_ollama(path, body)
+    m.ollama = no_embed
+    m._vecs.clear()
+    assert m.linkedinify("I got fired.").endswith("Agree?")
+    assert "Human: " not in fake_ollama.last["prompt"]
+
+
+def _with_urlopen(fn, raiser):
+    m.ollama = REAL_OLLAMA
+    m._vecs.clear()
+    orig = m.urllib.request.urlopen
+    m.urllib.request.urlopen = raiser
+    try:
+        fn()
+        assert False, "expected RuntimeError"
+    except RuntimeError as e:
+        return str(e)
+    finally:
+        m.urllib.request.urlopen = orig
+
+
+def test_ollama_down_raises_unemployed():
+    def refuse(*a, **k):
+        raise urllib.error.URLError("connection refused")
+    assert _with_urlopen(lambda: m.linkedinify("I got fired."), refuse) == m.UNEMPLOYED
+
+
+def test_http_error_shows_ollama_message():
+    def not_found(*a, **k):
+        raise urllib.error.HTTPError("u", 404, "Not Found", {}, io.BytesIO(b'{"error":"model not found"}'))
+    assert "model not found" in _with_urlopen(lambda: m.decrypt_recruiter("Thrilled."), not_found)
+
+
+def test_agent_sees_error_text():
+    for tool, args, msg in [("synergy_score", {"text": " "}, "text is empty"),
+                            ("linkedinify", {"text": "x"}, m.UNEMPLOYED)]:
+        def refuse(*a, **k):
+            raise urllib.error.URLError("connection refused")
+        orig, m.urllib.request.urlopen, m.ollama = m.urllib.request.urlopen, refuse, REAL_OLLAMA
+        try:
+            asyncio.run(m.mcp.call_tool(tool, args))
+            assert False, "expected tool error"
+        except Exception as e:
+            assert msg in str(e), str(e)
+        finally:
+            m.urllib.request.urlopen = orig
 
 
 if __name__ == "__main__":

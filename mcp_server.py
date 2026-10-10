@@ -10,6 +10,7 @@ import urllib.request
 from pathlib import Path
 
 from mcp.server.mcpserver import MCPServer  # mcp 2.x; FastMCP in 1.x
+from mcp.server.mcpserver.exceptions import ToolError
 
 HERE = Path(__file__).resolve().parent  # agents launch us from any cwd
 CFG = json.loads((HERE / "prompts.json").read_text(encoding="utf-8"))
@@ -17,6 +18,11 @@ CORPUS = json.loads((HERE / "cringe.json").read_text(encoding="utf-8"))
 UNEMPLOYED = "Ollama is unemployed. Run `ollama serve`."
 
 mcp = MCPServer("ilovemyjob")
+
+
+# mcp 2.x shows the agent only ToolError text ("Error executing tool X" for anything else).
+class OllamaError(ToolError, RuntimeError): pass
+class EmptyText(ToolError, ValueError): pass
 
 
 def cosine(a, b):
@@ -53,8 +59,57 @@ def build_prompt(text, cringe, examples, reverse=False):
 def clean(text, limit):
     text = text.strip()[:limit]
     if not text:
-        raise ValueError("text is empty")
+        raise EmptyText("text is empty")
     return text
+
+
+def ollama(path, body):
+    req = urllib.request.Request(CFG["ollama"] + path, json.dumps(body).encode(),
+                                 {"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            return json.load(r)
+    except urllib.error.HTTPError as e:  # Ollama is up but unhappy, e.g. model not pulled
+        raise OllamaError("Ollama said: " + e.read().decode(errors="replace")) from e
+    except (urllib.error.URLError, OSError) as e:
+        raise OllamaError(UNEMPLOYED) from e
+
+
+# side ('human' | 'linkedin') -> corpus vectors. Built on first call, not at startup,
+# so the server starts even while Ollama is down.
+_vecs = {}
+
+
+def examples_for(text, side):
+    """Top 3 corpus pairs closest to text on the given side. [] if embedding fails (vibes only)."""
+    try:
+        if side not in _vecs:
+            _vecs[side] = ollama("/api/embed", {"model": CFG["embedModel"],
+                                                "input": ["search_document: " + p[side] for p in CORPUS]})["embeddings"]
+        q = ollama("/api/embed", {"model": CFG["embedModel"], "input": ["search_query: " + text]})["embeddings"][0]
+    except RuntimeError:
+        return []
+    return [CORPUS[i] for i in top_k(q, _vecs[side])]
+
+
+def generate(system, prompt):
+    return ollama("/api/generate", {"model": CFG["model"], "system": system, "prompt": prompt,
+                                    "stream": False, "options": {"temperature": CFG["temperature"]}})["response"].strip()
+
+
+@mcp.tool()
+def linkedinify(text: str, cringe: int = 7) -> str:
+    """Rewrite a plain sentence as a LinkedIn post. text: max 500 chars. cringe: 1 (mild) to 10 (unhinged)."""
+    text = clean(text, 500)
+    cringe = max(1, min(10, int(cringe)))
+    return enforce_agree(generate(CFG["system"], build_prompt(text, cringe, examples_for(text, "human"))))
+
+
+@mcp.tool()
+def decrypt_recruiter(post: str) -> str:
+    """Translate a LinkedIn post into the one or two honest sentences the author means. post: max 3000 chars."""
+    post = clean(post, 3000)
+    return generate(CFG["reverseSystem"], build_prompt(post, 0, examples_for(post, "linkedin"), reverse=True))
 
 
 @mcp.tool()
