@@ -4,6 +4,7 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `cringe.json`: grown to 40 hand-written pairs (commuting, pets, kids, weather, office tech, career setbacks); live retrieval picks on-topic examples. `preview.html` location bar shows `http://localhost:8000/preview.html`.
 - 2026-10-10 — Acceptance: MCP registered in Claude Code (local scope), headless `claude -p` lists `decrypt_recruiter`, `linkedinify`, `synergy_score` and `linkedinify` returns a post ending "Agree?". Browser with `nomic-embed-text` removed: post still streams, "Sources: vibes only"; after re-pull, next run shows 3 sources without reload.
 - 2026-10-10 — Review minors fixed. MCP: timeout says "thinking too slowly" (not "unemployed"), cut-off/non-JSON replies become tool errors, HTTP errors show only Ollama's `error` text, blank `decrypt_recruiter` answer says "No comment." (Python 31/31). Page: failed run clears old sources/meter/engagement, spaces-only input shows the "fill out this field" hint, failed query embed keeps corpus vectors, last stream line without newline is parsed. Spec: lazy embedding, `pip install "mcp>=2"`, app URL `/frontend/`.
 - 2026-10-10 — Review fixes: "Agree?" anywhere on the last line counts (no double "Agree?" after emoji/hashtags); preamble strip only drops a whole "Here is ...:" line (keeps "Here's what I learned: ..." openers); `#output` gets `aria-busy` while streaming. JS 27/27, Python 26/26.
@@ -36,5 +37,3 @@ Update this file when work lands. Newest first.
 
 ## Next
 
-- [ ] Team grows cringe.json to 30–50 pairs (commuting, kids, pets, weather, gym, coffee...).
-- [ ] Replace sample address `http://www.homepages.example/~stupid/` in `preview.html`.
