@@ -1,4 +1,4 @@
-# docker compose up -d   then open http://localhost:8000
+# docker compose up -d   then open http://localhost:8000/frontend/
 # Same as REQUIREMENTS.md section 8, no Ollama or Python install needed.
 services:
   ollama:

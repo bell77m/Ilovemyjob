@@ -4,6 +4,19 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `cringe.json`: grown to 40 hand-written pairs (commuting, pets, kids, weather, office tech, career setbacks); live retrieval picks on-topic examples. `preview.html` location bar shows `http://localhost:8000/preview.html`.
+- 2026-10-10 — Acceptance: MCP registered in Claude Code (local scope), headless `claude -p` lists `decrypt_recruiter`, `linkedinify`, `synergy_score` and `linkedinify` returns a post ending "Agree?". Browser with `nomic-embed-text` removed: post still streams, "Sources: vibes only"; after re-pull, next run shows 3 sources without reload.
+- 2026-10-10 — Review minors fixed. MCP: timeout says "thinking too slowly" (not "unemployed"), cut-off/non-JSON replies become tool errors, HTTP errors show only Ollama's `error` text, blank `decrypt_recruiter` answer says "No comment." (Python 31/31). Page: failed run clears old sources/meter/engagement, spaces-only input shows the "fill out this field" hint, failed query embed keeps corpus vectors, last stream line without newline is parsed. Spec: lazy embedding, `pip install "mcp>=2"`, app URL `/frontend/`.
+- 2026-10-10 — Review fixes: "Agree?" anywhere on the last line counts (no double "Agree?" after emoji/hashtags); preamble strip only drops a whole "Here is ...:" line (keeps "Here's what I learned: ..." openers); `#output` gets `aria-busy` while streaming. JS 27/27, Python 26/26.
+- 2026-10-10 — `frontend/index.html` wired: streaming translate (F1/F2), Win95 error `<dialog>` (F5), "Agree?" rule (F12), copy button, loading messages, remembered cringe slider (F3/F4/F6), browser RAG + sources (F13), Decrypt Recruiter (F7), Synergy Meter + fake engagement (F8/F9). Checked live in Chrome: stream, sources, reverse, Ollama-down dialog, 375px no scroll, only localhost requests.
+- 2026-10-10 — `frontend/lib.js`: `cosine`, `topK`, `synergyScore` (24 checks in `tests.js`).
+- 2026-10-10 — `prompts.json` `system` says few-shot pairs are examples only (3B model was rewriting all 3); `enforceAgree`/`enforce_agree` strip echoed `Human:`/`LinkedIn:` labels and "Here is the post:" preambles.
+- 2026-10-10 — `AGENTS.md`: Overview and Commands filled.
+- 2026-10-10 — `mcp_server.py`: `linkedinify` and `decrypt_recruiter` MCP tools (Ollama via `urllib`, lazy corpus embeddings, top-3 RAG examples, falls back to no examples if embedding fails); errors reach the agent as `ToolError` text. 20 checks in `test_mcp_server.py`; live stdio smoke test passed (Ollama up, down, back up, server stays alive).
+- 2026-10-10 — `prompts.json`: `reverseSystem` now says the few-shot pairs are examples only (3B model was translating them too).
+- 2026-10-10 — `mcp_server.py`: MCP server (mcp 2.x `MCPServer`, stdio) with `synergy_score` tool and Python twins of `lib.js` helpers; `test_mcp_server.py` (11 checks, `python test_mcp_server.py`).
+- 2026-10-10 — `cringe.json`: starter RAG corpus, 12 hand-written human → LinkedIn pairs (§4 rows first).
+- 2026-10-10 — `prompts.json` (shared models + prompts + buzzwords), `frontend/lib.js` (`buildPrompt`, `enforceAgree`, `splitNdjson`), `frontend/tests.js` + `tests.html` (11 checks, Node or browser).
 - 2026-10-10 — `frontend/index.html`: static LinkedIn Translator page skeleton in Netscape 96 theme (input, cringe slider, buttons, output, sources, Win95 error dialog, status bar). No functionality wired yet.
 - 2026-10-10 — `frontend/index.html`: four floating ads (ghost as horror movie, lobster as networking lunch) bouncing like a screensaver, linear motion via JS, static under reduced motion.
 - 2026-10-10 — `frontend/index.html`: ad close buttons hide their ad and stop it moving.
@@ -24,8 +37,3 @@ Update this file when work lands. Newest first.
 
 ## Next
 
-- [ ] Execute the plan in `docs/superpowers/plans/2026-10-10-linkedin-translator.md`, task by task.
-- [ ] Fill `AGENTS.md` Overview and Commands once the app has a stack.
-- [ ] Build `index.html` LinkedIn Translator MVP (F1–F5 in `REQUIREMENTS.md`).
-- [ ] Write `cringe.json` corpus, then RAG (F13) and `mcp_server.py` (F14).
-- [ ] Replace sample address `http://www.homepages.example/~stupid/` in `preview.html`.
