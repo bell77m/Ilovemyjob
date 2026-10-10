@@ -117,7 +117,7 @@ Rules:
 - Output only the post. No preamble.
 ```
 
-Reverse mode prompt (`reverseSystem` in `prompts.json`): "Translate the final \"LinkedIn post\" into the blunt, honest sentence the author actually means. The LinkedIn/Human pairs before it are examples only: never repeat or translate them. Reply with one or two sentences, no emoji, no preamble." (The 3B model otherwise translated the few-shot examples too.)
+Reverse mode prompt (`reverseSystem` in `prompts.json`): "Translate the final 'LinkedIn post' into the blunt, honest sentence the author actually means. The LinkedIn/Human pairs before it are examples only: never repeat or translate them. Reply with one or two sentences, no emoji, no preamble." (The 3B model otherwise translated the few-shot examples too.)
 
 Both prompts live in `prompts.json` so the web page and the MCP server use the same text.
 
