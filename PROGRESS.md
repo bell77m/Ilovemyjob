@@ -4,6 +4,10 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — `frontend/index.html` wired: streaming translate (F1/F2), Win95 error `<dialog>` (F5), "Agree?" rule (F12), copy button, loading messages, remembered cringe slider (F3/F4/F6), browser RAG + sources (F13), Decrypt Recruiter (F7), Synergy Meter + fake engagement (F8/F9). Checked live in Chrome: stream, sources, reverse, Ollama-down dialog, 375px no scroll, only localhost requests.
+- 2026-10-10 — `frontend/lib.js`: `cosine`, `topK`, `synergyScore` (24 checks in `tests.js`).
+- 2026-10-10 — `prompts.json` `system` says few-shot pairs are examples only (3B model was rewriting all 3); `enforceAgree`/`enforce_agree` strip echoed `Human:`/`LinkedIn:` labels and "Here is the post:" preambles.
+- 2026-10-10 — `AGENTS.md`: Overview and Commands filled.
 - 2026-10-10 — `mcp_server.py`: `linkedinify` and `decrypt_recruiter` MCP tools (Ollama via `urllib`, lazy corpus embeddings, top-3 RAG examples, falls back to no examples if embedding fails); errors reach the agent as `ToolError` text. 20 checks in `test_mcp_server.py`; live stdio smoke test passed (Ollama up, down, back up, server stays alive).
 - 2026-10-10 — `prompts.json`: `reverseSystem` now says the few-shot pairs are examples only (3B model was translating them too).
 - 2026-10-10 — `mcp_server.py`: MCP server (mcp 2.x `MCPServer`, stdio) with `synergy_score` tool and Python twins of `lib.js` helpers; `test_mcp_server.py` (11 checks, `python test_mcp_server.py`).
@@ -30,10 +34,9 @@ Update this file when work lands. Newest first.
 ## Next
 
 - [ ] Register the MCP server in Claude Code: `claude mcp add ilovemyjob -- python "<repo>\mcp_server.py"`, then try `/mcp` and "Use linkedinify on: I fixed a typo."
-- [ ] `llama3.2:3b` sometimes prefixes `linkedinify` output with "LinkedIn:" (copies the few-shot format); strip it in `enforce_agree`/`enforceAgree` if it shows up in the demo.
-- [ ] Execute the plan in `docs/superpowers/plans/2026-10-10-linkedin-translator.md`, task by task.
-- [ ] Fill `AGENTS.md` Overview and Commands once the app has a stack.
-- [ ] Build `index.html` LinkedIn Translator MVP (F1–F5 in `REQUIREMENTS.md`).
-- [ ] Browser RAG (F13, plan Task 5).
+- [ ] MCP error polish (review minors): timeout says "unemployed" even when Ollama is just slow; `IncompleteRead`/bad JSON skip the vibes-only fallback; raw `{"error":...}` JSON in messages; `decrypt_recruiter` can return "".
+- [ ] `REQUIREMENTS.md` §7 says corpus is embedded "at startup"; code embeds on first call (on purpose). Update spec line.
+- [ ] Setup docs: `pip install "mcp>=2"` (1.x users get ImportError).
+- [ ] Model sometimes ends "Agree? 🤔", then F12 appends a second "Agree?".
 - [ ] Team grows cringe.json to 30–50 pairs (commuting, kids, pets, weather, gym, coffee...).
 - [ ] Replace sample address `http://www.homepages.example/~stupid/` in `preview.html`.
