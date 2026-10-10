@@ -4,6 +4,7 @@ Update this file when work lands. Newest first.
 
 ## Done
 
+- 2026-10-10 — Merged PR #5 (cursed badges) into the TanStack app: "Made with Notepad" turns the page grayscale, "Best viewed at 800 x 600" hides the page and cursor (`.vanished` on `<html>`), "Get a FREE homepage!" and all four ad links open the YouTube video at t=3. All one-way until reload.
 - 2026-10-10 — Review fix: translation streams via `POST /api/translate` (Start server route) instead of a server function, so leaving the page or closing the tab stops Ollama immediately (was up to 120 s of ghost generation). Page aborts on unmount and `pagehide`. Vitest 43/43.
 - 2026-10-10 — `frontend/` rebuilt on TanStack Start + Router + Query + Form (React 19, TS): `/` and `/decrypt`, server functions call Ollama and run RAG (browser never talks to Ollama), streamed events, all jokes ported (ads, AI spam, jump scare). Vitest 38/38. Docker `web` builds `frontend/Dockerfile` (62 MB), tunnel points at the app, `nginx.conf` and vanilla page removed. Checked live: stream, sources, decrypt, empty input, Ollama down, server down, 375px, only own-origin requests.
 - 2026-10-10 — `docs/superpowers/specs/2026-10-10-tanstack-frontend-design.md`: design for rebuilding `frontend/` on TanStack Start + Router + Query + Form (React, full parity incl. jokes, Ollama called server-side).

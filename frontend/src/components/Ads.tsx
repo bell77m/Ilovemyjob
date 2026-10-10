@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 
+// Every ad and the "FREE homepage" badge open this video at 3 seconds
+export const AD_URL = 'https://youtu.be/eioYulMp_5k?si=HXhGqI4CviCrAcje&t=3'
 const ADS = [
   { horror: true, title: 'THE SHROUD - Now Showing!', img: 'ghost.jpg', alt: 'A ghost in a white sheet and sunglasses standing in a dark parking garage',
     text: 'It has been waiting in the parking garage since 1996. Rated R for Really Scary. Coming to a theater near you... if you dare!', link: 'Click here for tickets!' },
@@ -89,7 +91,7 @@ export function Ads() {
       <img src={`/images/${ad.img}`} alt={ad.alt} />
       <div className="ad-body">
         <p>{ad.text}</p>
-        <a className="ad-link" href="#">{ad.link}</a>
+        <a className="ad-link" href={AD_URL}>{ad.link}</a>
       </div>
     </div>
   ))

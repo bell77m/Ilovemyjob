@@ -116,6 +116,8 @@ dialog::backdrop { background: none; }
 .ad.horror .ad-link:visited { color: #ff0; }
 
 .scare { position: fixed; inset: 0; z-index: 1000; width: 100%; height: 100%; object-fit: cover; }
+.vanished, .vanished * { cursor: none !important; }
+.vanished body { display: none; }
 
 /* Mode switch: links styled as Win95 buttons; the current page looks pressed. */
 .nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 8px 0; }

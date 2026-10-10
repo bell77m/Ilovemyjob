@@ -2,7 +2,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HeadContent, Link, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Ads } from '../components/Ads'
+import { AD_URL, Ads } from '../components/Ads'
 import { ErrorDialogProvider } from '../components/ErrorDialog'
 import { IndexStatus } from '../components/IndexStatus'
 import { JumpScare } from '../components/JumpScare'
@@ -53,9 +53,11 @@ function RootLayout() {
                       <p className="small">You are visitor number 0001337</p>
                       <p className="small">Last updated: 10/10/26 &middot; <a href="mailto:webmaster@example.com">E-mail the webmaster</a></p>
                       <div className="badges">
-                        <a href="#top"><span className="b88 b-best"><span>Best viewed at</span><span>800 x 600</span></span></a>
-                        <a href="#top"><span className="b88 b-pad"><span>Made with</span><span>Notepad</span></span></a>
-                        <a href="#top"><span className="b88 b-free"><span>Get a FREE</span><span>homepage!</span></span></a>
+                        {/* One-way until reload: the page vanishes, cursor too */}
+                        <a href="#top" onClick={e => { e.preventDefault(); document.documentElement.classList.add('vanished') }}><span className="b88 b-best"><span>Best viewed at</span><span>800 x 600</span></span></a>
+                        {/* Filter on <html>, not <body>, so the fixed ads still float against the viewport */}
+                        <a href="#top" onClick={e => { e.preventDefault(); document.documentElement.style.filter = 'grayscale(1)' }}><span className="b88 b-pad"><span>Made with</span><span>Notepad</span></span></a>
+                        <a href={AD_URL}><span className="b88 b-free"><span>Get a FREE</span><span>homepage!</span></span></a>
                       </div>
                     </footer>
                   </div>
