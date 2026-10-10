@@ -63,6 +63,18 @@ def test_enforce_agree_keeps_existing():
     assert m.enforce_agree("grateful. agree?  \n") == "grateful. agree?"
 
 
+def test_enforce_agree_drops_echoed_linkedin_label():
+    assert m.enforce_agree("LinkedIn: Grateful. Agree?") == "Grateful. Agree?"
+
+
+def test_enforce_agree_drops_echoed_human_line_and_label():
+    assert m.enforce_agree("Human: I forgot my umbrella.\nLinkedIn: Soaked. Agree?") == "Soaked. Agree?"
+
+
+def test_enforce_agree_drops_here_is_preamble():
+    assert m.enforce_agree("Here is the rewritten LinkedIn post:\n\nGrateful. Agree?") == "Grateful. Agree?"
+
+
 def test_build_prompt_matches_lib_js():
     assert m.build_prompt("I overslept.", 7, [FIRED]) == \
         "Human: I got fired.\nLinkedIn: Thrilled.\n\nCringe level: 7/10\nHuman text: I overslept."

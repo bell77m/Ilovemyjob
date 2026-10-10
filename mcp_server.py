@@ -5,6 +5,7 @@ Never print() here: stdout is the MCP channel.
 """
 import json
 import math
+import re
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -42,7 +43,10 @@ def synergy(text, words):
 
 
 def enforce_agree(text):
-    t = text.strip()
+    # Small models echo the few-shot format ("Human: ...", "LinkedIn:") or chat ("Here is the post:"); drop that first.
+    t = re.sub(r"^here(?: is|'s)[^\n]*:\s*", "", text.strip(), flags=re.I)
+    t = re.sub(r"^human:[^\n]*\n+", "", t, flags=re.I)
+    t = re.sub(r"^linkedin(?: post)?:\s*", "", t, flags=re.I)
     if t.lower().endswith("agree?"):
         return t
     return t + "\n\nAgree?" if t else "Agree?"
