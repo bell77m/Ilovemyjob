@@ -84,6 +84,8 @@ textarea { width: 100%; resize: vertical; }
 .progress > span { display: block; height: 100%; width: 0; background: repeating-linear-gradient(90deg, var(--navy) 0 8px, transparent 8px 10px); }
 
 .dialog { width: 360px; max-width: 100%; margin: 16px auto; }
+dialog.dialog { border: 0; margin: auto; color: #000; max-width: calc(100vw - 16px); }
+dialog::backdrop { background: none; }
 .dialog-body { display: flex; gap: 12px; padding: 12px 8px 8px; }
 .dialog-icon { flex: none; width: 32px; height: 32px; background: #cc0000; color: #fff; text-align: center; font: bold 22px/32px var(--font-page); }
 
@@ -138,11 +140,11 @@ textarea { width: 100%; resize: vertical; }
       </header>
 
       <main>
-        <section aria-labelledby="translate-heading">
+        <form id="form" aria-labelledby="translate-heading">
           <h2 id="translate-heading">Translate</h2>
           <div class="field">
             <label for="input-text"><b>What actually happened?</b></label>
-            <textarea id="input-text" rows="4" maxlength="500" placeholder="I got fired."></textarea>
+            <textarea id="input-text" rows="4" maxlength="500" required placeholder="I got fired."></textarea>
           </div>
           <div class="field-row">
             <label for="cringe">Cringe level:</label>
@@ -150,22 +152,23 @@ textarea { width: 100%; resize: vertical; }
             <span id="cringe-value">7</span>
           </div>
           <div class="buttons">
-            <button type="button" class="default">Make It Professional&trade;</button>
-            <button type="button" disabled>Decrypt Recruiter</button>
+            <button type="submit" class="default" id="go" disabled>Make It Professional&trade;</button>
+            <button type="button" id="reverse" disabled>Decrypt Recruiter</button>
           </div>
-        </section>
+        </form>
 
         <hr>
 
         <section aria-labelledby="output-heading">
           <h3 id="output-heading">Your LinkedIn Post</h3>
           <div class="output" id="output" aria-live="polite"></div>
+          <p class="small" id="engage"></p>
           <div class="buttons" style="margin-top: 8px;">
-            <button type="button" disabled>Copy to Clipboard</button>
+            <button type="button" id="copy" disabled>Copy to Clipboard</button>
           </div>
           <div class="progress-wrap" style="margin-top: 8px;">
-            <span class="small">Synergy Meter:</span>
-            <span class="progress" aria-hidden="true"><span></span></span>
+            <span class="small" id="meter-label">Synergy Meter: 0%</span>
+            <span class="progress" aria-hidden="true"><span id="meter"></span></span>
           </div>
         </section>
 
@@ -174,20 +177,18 @@ textarea { width: 100%; resize: vertical; }
           <ol class="sources" id="sources"></ol>
         </section>
 
-        <div class="dialog window" role="alertdialog" aria-labelledby="err-title" hidden>
+        <dialog class="dialog window" id="err" role="alertdialog" aria-labelledby="err-title" aria-describedby="err-msg">
           <div class="titlebar">
-            <span id="err-title">Error</span>
-            <span class="tb-btns" aria-hidden="true"><span class="tb-btn"></span></span>
+            <span id="err-title">LINKEDIN caused an error</span>
           </div>
           <div class="dialog-body">
             <div class="dialog-icon" aria-hidden="true">X</div>
             <div>
-              <p>This program has performed an illegal operation: your LLM is unemployed.</p>
-              <p>Run <code>ollama serve</code>.</p>
-              <div class="buttons"><button type="button" class="default">OK</button></div>
+              <p id="err-msg"></p>
+              <form method="dialog" class="buttons"><button class="default">OK</button></form>
             </div>
           </div>
-        </div>
+        </dialog>
       </main>
 
       <footer class="center">
@@ -205,7 +206,7 @@ textarea { width: 100%; resize: vertical; }
 </div>
 
 <div class="statusbar window" role="status">
-  <span class="msg">Document: Done</span>
+  <span class="msg" id="status">Document: Done</span>
   <span class="meter" aria-hidden="true"><span></span></span>
   <span>Local file</span>
 </div>
@@ -333,7 +334,155 @@ textarea { width: 100%; resize: vertical; }
 })();
 </script>
 
-<img class="scare" src="images/haunted-house.jpg" alt="Silhouette of a haunted house with lit windows and a dead tree" hidden>
+<script src="lib.js"></script>
+<script>
+// The translator: page -> local Ollama, no backend. Pure logic lives in lib.js.
+const $ = id => document.getElementById(id);
+const UNEMPLOYED = 'This program has performed an illegal operation: your LLM is unemployed. Run `ollama serve`. ' +
+  '(Also open this page at http://localhost:8000, or Ollama will not let it in.)';
+const LOADING = ['Humbled to be generating...', 'Leveraging synergies...', 'Circling back...', 'Disrupting your request...'];
+const NAMES = ['Chad Synergy, Chief Vibes Officer', 'Brenda Leverage, VP of Gratitude', 'Kyle Disrupt, Serial Thought Leader'];
+let cfg, corpus = [];
+const vecs = {}; // side ('human' | 'linkedin') -> Promise<number[][]>, built on first use
+
+function showError(msg) { $('err-msg').textContent = msg; if (!$('err').open) $('err').showModal(); }
+function setBusy(on) { $('go').disabled = $('reverse').disabled = on; }
+
+// fetch() throws on connection refused AND on CORS block; both mean "Ollama can't be reached".
+async function ollama(path, body) {
+  let r;
+  try { r = await fetch(cfg.ollama + path, { method: 'POST', body: JSON.stringify(body) }); }
+  catch { throw new Error(UNEMPLOYED); }
+  if (!r.ok) throw new Error('Ollama said: ' + ((await r.json().catch(() => null))?.error || r.status));
+  return r;
+}
+
+async function embed(texts) {
+  const r = await ollama('/api/embed', { model: cfg.embedModel, input: texts });
+  return (await r.json()).embeddings;
+}
+
+function index(side) {
+  vecs[side] ??= embed(corpus.map(p => 'search_document: ' + p[side]));
+  return vecs[side];
+}
+
+// RAG is a bonus: if embedding fails, translate with no examples.
+async function retrieve(text, side) {
+  try {
+    const [docs, [q]] = await Promise.all([index(side), embed(['search_query: ' + text])]);
+    return topK(q, docs, 3).map(i => corpus[i]);
+  } catch {
+    delete vecs[side]; // retry next time, e.g. after `ollama pull nomic-embed-text`
+    return [];
+  }
+}
+
+function showSources(examples, reverse) {
+  $('sources-heading').textContent = examples.length ? `Sources: ${examples.length} thought leaders` : 'Sources: vibes only';
+  $('sources').replaceChildren(...examples.map((ex, i) => {
+    const li = document.createElement('li');
+    li.append(Object.assign(document.createElement('b'), { textContent: NAMES[i] + ': ' }), reverse ? ex.human : ex.linkedin);
+    return li;
+  }));
+}
+
+function showStats(text, reverse) {
+  const s = synergyScore(text, cfg.buzzwords);
+  $('meter').style.width = s.score + '%';
+  $('meter-label').textContent = `Synergy Meter: ${s.score}% (${s.buzzwords.join(', ') || 'none detected'})`;
+  const n = max => Math.floor(Math.random() * max).toLocaleString('en-US');
+  $('engage').textContent = reverse ? '' : `${n(9999)} reactions · ${n(999)} comments · ${n(99)} reposts`;
+}
+
+async function translate(reverse = false) {
+  const text = $('input-text').value.trim();
+  if (!text) return;
+  const out = $('output');
+  setBusy(true);
+  $('copy').disabled = true;
+  let started = false, i = 0;
+  const tick = () => {
+    const msg = LOADING[i++ % LOADING.length];
+    $('status').textContent = msg;
+    if (!started) out.textContent = msg;
+  };
+  tick();
+  const ticker = setInterval(tick, 1500);
+  try {
+    const examples = await retrieve(text, reverse ? 'linkedin' : 'human');
+    const r = await ollama('/api/generate', {
+      model: cfg.model, system: reverse ? cfg.reverseSystem : cfg.system,
+      prompt: buildPrompt(text, +$('cringe').value, examples, reverse),
+      stream: true, options: { temperature: cfg.temperature },
+    });
+    // TextDecoderStream keeps multi-byte emoji intact across chunk boundaries.
+    const reader = r.body.pipeThrough(new TextDecoderStream()).getReader();
+    let buf = '';
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      let msgs;
+      [msgs, buf] = splitNdjson(buf + value);
+      for (const m of msgs) {
+        if (m.error) throw new Error('Ollama said: ' + m.error);
+        if (!started) { started = true; clearInterval(ticker); out.textContent = ''; }
+        out.textContent += m.response || '';
+      }
+    }
+    out.textContent = reverse ? out.textContent.trim() : enforceAgree(out.textContent);
+    showSources(examples, reverse);
+    showStats(out.textContent, reverse);
+    $('status').textContent = examples.length ? 'Document: Done' : 'Sources: vibes only';
+    $('copy').disabled = false;
+  } catch (e) {
+    if (!started) out.textContent = '';
+    $('status').textContent = 'Document: Error';
+    showError(e.message);
+  } finally {
+    clearInterval(ticker);
+    setBusy(false);
+  }
+}
+
+$('form').addEventListener('submit', e => { e.preventDefault(); translate(false); });
+$('reverse').addEventListener('click', () => { if ($('form').reportValidity()) translate(true); });
+
+// localStorage can throw (private mode, blocked storage); the slider still works without it.
+const cringe = $('cringe');
+try { cringe.value = localStorage.cringe || 7; } catch {}
+const syncCringe = () => {
+  $('cringe-value').textContent = cringe.value;
+  try { localStorage.cringe = cringe.value; } catch {}
+};
+cringe.addEventListener('input', syncCringe);
+syncCringe();
+
+$('copy').addEventListener('click', () =>
+  navigator.clipboard.writeText($('output').textContent)
+    .then(() => { $('status').textContent = 'Copied. Friends lost: all.'; })
+    .catch(() => showError('Clipboard blocked. Select the post and press Ctrl+C.')));
+
+// Shared JSON sits at the repo root, next to mcp_server.py.
+(async () => {
+  try {
+    [cfg, corpus] = await Promise.all(['../prompts.json', '../cringe.json'].map(f => fetch(f).then(r => r.json())));
+  } catch {
+    return showError('Cannot read prompts.json or cringe.json. Serve the repo folder with: python -m http.server 8000');
+  }
+  setBusy(false);
+  $('status').textContent = `Indexing thought leadership... 0/${corpus.length}`;
+  try {
+    await index('human');
+    $('status').textContent = `Indexing thought leadership... ${corpus.length}/${corpus.length}`;
+  } catch {
+    delete vecs.human;
+    $('status').textContent = 'Sources: vibes only';
+  }
+})();
+</script>
+
+<img class="scare"src="images/haunted-house.jpg" alt="Silhouette of a haunted house with lit windows and a dead tree" hidden>
 <script>
 // One-time jump scare: full-page haunted house at 5 minutes, gone after 1 second
 setTimeout(() => {
