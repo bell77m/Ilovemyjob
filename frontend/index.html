@@ -477,6 +477,8 @@ $('copy').addEventListener('click', () =>
   } catch {
     return showError('Cannot read prompts.json or cringe.json. Serve the repo folder with: python -m http.server 8000');
   }
+  // ponytail: off localhost (tunnel demo) nginx proxies Ollama on the same origin.
+  if (!['localhost', '127.0.0.1'].includes(location.hostname)) cfg.ollama = location.origin;
   setBusy(false);
   $('status').textContent = `Indexing thought leadership... 0/${corpus.length}`;
   try {
